@@ -1,4 +1,5 @@
-from odoo import fields, models, api
+from odoo import fields, models, api, _
+from odoo.exceptions import UserError
 
 
 class OdooIstanceDockerContainer(models.Model):
@@ -50,22 +51,33 @@ class OdooIstanceDockerContainer(models.Model):
             else:
                 r.state = 'unknown'
 
+    def _connect_instance(self, instance):
+        ssh = instance.pserver_id._connect()
+        if not ssh:
+            raise UserError(
+                _("Cannot connect to server %s. Please check server information and SSH Key Pair.")
+                % instance.pserver_id.display_name
+            )
+        return ssh
+
     def action_restart(self):
         for instance in self.instance_id:
-            ssh = instance.pserver_id._connect()
+            ssh = self._connect_instance(instance)
             try:
                 instance.pserver_id._exec_cmd(f"cd /home/{instance.technical_name} && docker-compose restart", ssh)
             finally:
-                ssh.close()
+                if ssh:
+                    ssh.close()
 
     def action_stop(self):
         for instance in self.instance_id:
-            ssh = instance.pserver_id._connect()
+            ssh = self._connect_instance(instance)
             try:
                 # Use docker-compose stop to ensure all services are stopped consistently
                 instance.pserver_id._exec_cmd(f"cd /home/{instance.technical_name} && docker-compose stop", ssh)
             finally:
-                ssh.close()
+                if ssh:
+                    ssh.close()
 
         for instance in self.instance_id:
             if all(c.state == 'stop' for c in instance.docker_container_ids):
@@ -73,12 +85,13 @@ class OdooIstanceDockerContainer(models.Model):
 
     def action_start(self):
         for instance in self.instance_id:
-            ssh = instance.pserver_id._connect()
+            ssh = self._connect_instance(instance)
             try:
                 # Use docker-compose start to ensure all services start consistently
                 instance.pserver_id._exec_cmd(f"cd /home/{instance.technical_name} && docker-compose start", ssh)
             finally:
-                ssh.close()
+                if ssh:
+                    ssh.close()
 
         for instance in self.instance_id:
             if all(c.state == 'run' for c in instance.docker_container_ids):

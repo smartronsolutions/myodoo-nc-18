@@ -29,8 +29,9 @@ class PServer(models.Model):
             record.can_edit_ssh_key = is_saas_master
 
     def action_test_connection(self):
-        ssh = self._connect()
-        ssh.close()
+        ssh = self._connect_or_raise()
+        if ssh:
+            ssh.close()
 
         message = _("Connection Successful!")
         return {
@@ -64,6 +65,15 @@ class PServer(models.Model):
             return ssh
         except Exception:
             return False
+
+    def _connect_or_raise(self):
+        ssh = self._connect()
+        if not ssh:
+            raise UserError(
+                _("Cannot connect to server %s. Please check server information and SSH Key Pair.")
+                % self.display_name
+            )
+        return ssh
 
     def _deploy_odoo_instance(self, instance):
         ssh = self._connect()
@@ -152,12 +162,15 @@ class PServer(models.Model):
 
     def _revoke_odoo_instance(self, instance, ssh=None):
         if not ssh:
-            ssh = self._connect()
-        self._remove_docker_containers(instance, ssh)
-        self._remove_instance_folder(instance, ssh)
-        self._remove_nginx_file(instance.domain_name_ids, ssh)
-        self._remove_network(instance, ssh)
-        ssh.close()
+            ssh = self._connect_or_raise()
+        try:
+            self._remove_docker_containers(instance, ssh)
+            self._remove_instance_folder(instance, ssh)
+            self._remove_nginx_file(instance.domain_name_ids, ssh)
+            self._remove_network(instance, ssh)
+        finally:
+            if ssh:
+                ssh.close()
 
     def _remove_docker_containers(self, instance, ssh):
         if not instance.docker_container_ids:
@@ -219,12 +232,13 @@ class PServer(models.Model):
             return
 
         if not ssh:
-            ssh = self._connect()
+            ssh = self._connect_or_raise()
         if instance.need_to_compose_up:
             self._docker_compose_up(instance, ssh)
             instance.write({'need_to_compose_up': False})
         self._exec_cmd("docker %s %s" % (operation, container_names), ssh)
-        ssh.close()
+        if ssh:
+            ssh.close()
 
     def _redeploy_odoo_instance_config(self, instance):
         ssh = self._connect()

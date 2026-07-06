@@ -80,7 +80,7 @@ class Pricing(http.Controller):
             'pricelist': pricelist,
             'pricelists': pricelists,
             'data': data,
-            'currency_symbol': pricelist.currency_id.symbol or '$',
+            'currency_symbol': pricelist.currency_id.symbol or 'XPF',
         }
         return request.render("s_odoo_saas_master.pricing", values)
 
@@ -102,7 +102,7 @@ class Pricing(http.Controller):
             'yearly_pricelist': yearly_pricelist_calculated,
             'currency': {
                 'id': pricelist.currency_id.id,
-                'symbol': pricelist.currency_id.symbol or '$',
+                'symbol': pricelist.currency_id.symbol or 'XPF',
                 'decimal_places': pricelist.currency_id.decimal_places or 2,
                 'position': pricelist.currency_id.position or 'after',
             },

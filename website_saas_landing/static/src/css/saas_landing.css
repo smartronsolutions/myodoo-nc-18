@@ -1,0 +1,48 @@
+/* 
+ * Website SaaS Landing Page - External CSS
+ * This file can be used for additional styles or overrides
+ * Main styles are embedded in the template for better performance
+ */
+
+/* Optional: Add custom animations here */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Optional: Add print styles */
+@media print {
+  .oc_nav,
+  .oc_cta_sec,
+  .oc_footer {
+    display: none !important;
+  }
+}

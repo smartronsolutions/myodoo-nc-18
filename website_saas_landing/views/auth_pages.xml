@@ -10,7 +10,7 @@
   <field name="arch" type="xml">
     <xpath expr="//head" position="inside">
 <style>
-/* My Odoo SaaS auth pages: split form + blue product panel */
+/* My Odoo SaaS auth pages: InvoiceOne-style split screen */
 html:has(.oe_website_login_container) body,
 html:has(.oe_website_login_container) body.bg-100 {
   background:#fff !important;
@@ -37,11 +37,40 @@ html:has(.oe_website_login_container) #wrapwrap > main {
   overflow:hidden !important;
   background:#fff !important;
   font-family:'Inter','Segoe UI',Arial,sans-serif;
+  position:relative !important;
+}
+
+#wrapwrap .oe_website_login_container::before {
+  content:'PRODUCTIVITE &amp; FOCUS\A\A PROJET MY ODOO - SAAS CLOUD';
+  position:absolute;
+  top:60px;
+  left:calc(44vw + 86px);
+  z-index:3;
+  color:#fff;
+  white-space:pre-line;
+  font-size:13px;
+  line-height:2.9;
+  font-weight:900;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+
+#wrapwrap .oe_website_login_container::after {
+  content:'SYSTEME CLOUD CERTIFIE ODOO 18';
+  position:absolute;
+  top:66px;
+  right:38px;
+  z-index:3;
+  color:rgba(255,255,255,.43);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.35px;
+  text-transform:uppercase;
 }
 
 #wrapwrap .oe_website_login_container > .container {
   display:grid !important;
-  grid-template-columns:minmax(420px,44vw) 1fr;
+  grid-template-columns:44vw 56vw;
   min-height:100vh;
   width:100% !important;
   max-width:none !important;
@@ -56,29 +85,31 @@ html:has(.oe_website_login_container) #wrapwrap > main {
   grid-row:1;
   min-height:100vh;
   background:
-    linear-gradient(120deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/88px 88px,
-    radial-gradient(ellipse 55% 42% at 42% 46%,rgba(96,165,250,.26),transparent 62%),
-    radial-gradient(ellipse 58% 52% at 82% 22%,rgba(30,64,175,.34),transparent 64%),
-    linear-gradient(135deg,#244BDA 0%,#183B99 45%,#102456 100%);
+    linear-gradient(120deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/86px 86px,
+    linear-gradient(60deg,transparent 16%,rgba(255,255,255,.035) 16.2%,transparent 16.8%,transparent 44%,rgba(255,255,255,.03) 44.2%,transparent 45%),
+    radial-gradient(ellipse 70% 56% at 42% 45%,rgba(47,99,234,.35),transparent 64%),
+    radial-gradient(ellipse 45% 70% at 100% 52%,rgba(8,24,65,.55),transparent 70%),
+    linear-gradient(104deg,#254FDB 0%,#1D43B8 34%,#19377F 68%,#101F49 100%);
   position:relative;
 }
 
 #wrapwrap .oe_website_login_container > .container::after {
-  content:'MY ODOO SAAS CLOUD\A SYSTEME CLOUD POUR ODOO 18\A\A Votre Odoo en production, sans complexite.\A\A Deployez vos branches Git, suivez les builds, automatisez les sauvegardes et gardez chaque client dans un environnement isole.\A\A - Branches production, staging et developpement\A - Builds automatiques avec logs en temps reel\A - Backups chiffres et restauration rapide\A - Domaines personnalises avec SSL\A\A "Avec My Odoo, vos projets ERP restent rapides, propres et prets a grandir."';
+  content:'Votre temps est\A precieux, utilisez-le\A pour grandir.';
   grid-column:2;
   grid-row:1;
-  align-self:center;
-  justify-self:center;
-  width:min(76%,760px);
+  align-self:start;
+  justify-self:start;
+  margin:320px 0 0 86px;
+  width:min(620px,70%);
   color:#fff;
   white-space:pre-line;
-  font-size:16px;
-  line-height:1.75;
-  font-weight:600;
-  letter-spacing:.2px;
+  font-size:54px;
+  line-height:1.12;
+  font-weight:400;
+  letter-spacing:0;
   position:relative;
   z-index:1;
-  text-shadow:0 18px 50px rgba(0,0,0,.28);
+  text-shadow:0 18px 50px rgba(0,0,0,.22);
 }
 
 #wrapwrap .oe_website_login_container .row {
@@ -88,8 +119,41 @@ html:has(.oe_website_login_container) #wrapwrap > main {
   margin:0 !important;
   display:flex !important;
   align-items:center !important;
-  justify-content:center !important;
-  padding:48px 8vw !important;
+  justify-content:flex-start !important;
+  padding:48px 0 48px 18.5% !important;
+  position:relative;
+}
+
+#wrapwrap .oe_website_login_container .row::before {
+  content:'"Avec My Odoo, nous avons arrete de perdre du temps sur les deploiements manuels. Les builds, sauvegardes et domaines sont centralises, et notre equipe peut se concentrer sur les clients."\A\A   Steven Admin\A   RESPONSABLE OPERATIONS, NOUMEA';
+  position:absolute;
+  left:calc(44vw + 86px);
+  bottom:96px;
+  z-index:3;
+  width:min(880px,48vw);
+  color:rgba(255,255,255,.9);
+  white-space:pre-line;
+  font-size:20px;
+  line-height:1.55;
+  font-style:italic;
+  font-weight:500;
+}
+
+#wrapwrap .oe_website_login_container .row::after {
+  content:'© 2026 MY ODOO CLOUD\A CONTRAT SAAS-ODOO-18';
+  position:absolute;
+  left:calc(44vw + 86px);
+  right:36px;
+  bottom:38px;
+  z-index:3;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.18);
+  color:rgba(255,255,255,.42);
+  white-space:pre-line;
+  font-size:11px;
+  line-height:1;
+  font-weight:900;
+  display:flex;
 }
 
 #wrapwrap .oe_website_login_container .col,
@@ -119,8 +183,8 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 
 #wrapwrap .oe_website_login_container .card-body > .text-center.pb-3 {
   text-align:left !important;
-  padding:0 0 22px !important;
-  margin:0 0 18px !important;
+  padding:0 0 20px !important;
+  margin:0 0 4px !important;
   border:0 !important;
 }
 
@@ -132,7 +196,7 @@ html:has(.oe_website_login_container) #wrapwrap > main {
   align-items:center;
   justify-content:center;
   margin-right:12px;
-  border-radius:10px;
+  border-radius:9px;
   background:#2F63EA;
   color:#fff;
   font-weight:900;
@@ -142,7 +206,7 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 }
 
 #wrapwrap .oe_website_login_container .card-body > .text-center.pb-3::after {
-  content:'My Odoo\A CLOUD SAAS';
+  content:'My Odoo\A @ SAAS CLOUD';
   display:inline-block;
   color:#111827;
   white-space:pre-line;
@@ -160,7 +224,7 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 #wrapwrap .oe_website_login_container .oe_signup_form::before,
 #wrapwrap .oe_website_login_container .oe_reset_password_form::before {
   display:block;
-  margin:0 0 6px;
+  margin:0 0 4px;
   color:#0F172A;
   font-size:29px;
   line-height:1.16;
@@ -182,14 +246,14 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 #wrapwrap .oe_website_login_container .oe_signup_form::after,
 #wrapwrap .oe_website_login_container .oe_reset_password_form::after {
   display:block;
-  margin:0 0 26px;
+  margin:0 0 24px;
   color:#667085;
   font-size:14px;
   line-height:1.6;
 }
 
 #wrapwrap .oe_website_login_container .oe_login_form::after {
-  content:'Connectez-vous pour gerer vos instances, builds, sauvegardes et abonnements Odoo SaaS.';
+  content:'Connectez-vous pour gerer votre plateforme Odoo SaaS avec focus.';
 }
 #wrapwrap .oe_website_login_container .oe_signup_form::after {
   content:'Lancez votre espace My Odoo et deployez votre premier projet en quelques minutes.';
@@ -200,7 +264,7 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 
 #wrapwrap .oe_website_login_container label {
   color:#6B7280 !important;
-  font-size:12px !important;
+  font-size:11px !important;
   font-weight:800 !important;
   letter-spacing:.45px !important;
   text-transform:uppercase !important;
@@ -208,8 +272,8 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 }
 
 #wrapwrap .oe_website_login_container .form-control {
-  min-height:40px !important;
-  height:40px !important;
+  min-height:39px !important;
+  height:39px !important;
   color:#111827 !important;
   background:#fff !important;
   border:1px solid #D0D5DD !important;
@@ -232,8 +296,8 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 
 #wrapwrap .oe_website_login_container .input-group .btn,
 #wrapwrap .oe_website_login_container .o_show_password {
-  min-height:40px !important;
-  height:40px !important;
+  min-height:39px !important;
+  height:39px !important;
   color:#667085 !important;
   background:#F2F4F7 !important;
   border-color:#D0D5DD !important;
@@ -242,10 +306,10 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 
 #wrapwrap .oe_website_login_container .btn-primary {
   width:100% !important;
-  min-height:44px !important;
+  min-height:41px !important;
   border:0 !important;
   border-radius:7px !important;
-  margin-top:14px !important;
+  margin-top:28px !important;
   color:#fff !important;
   background:#2F63EA !important;
   font-size:14px !important;
@@ -303,11 +367,24 @@ html:has(.oe_website_login_container) #wrapwrap > main {
 }
 
 #wrapwrap .oe_website_login_container .card-body > .text-center.small {
-  margin-top:28px !important;
+  margin-top:220px !important;
   padding-top:16px !important;
   border-top:1px solid #EAECF0 !important;
   color:#667085 !important;
   font-size:13px !important;
+}
+
+#wrapwrap .oe_website_login_container .o_database_list::after,
+#wrapwrap .oe_website_login_container .card.o_database_list::after {
+  content:'v18.0                         MY ODOO SAAS                         NIF: 000000000';
+  display:block;
+  margin-top:20px;
+  padding-top:12px;
+  border-top:1px solid #EAECF0;
+  color:#98A2B3;
+  font-size:11px;
+  font-weight:900;
+  white-space:pre;
 }
 
 #wrapwrap .oe_website_login_container .o_login_auth em {
@@ -331,16 +408,24 @@ html:has(.oe_website_login_container) #wrapwrap > main {
     min-height:100vh;
   }
   #wrapwrap .oe_website_login_container > .container::before,
-  #wrapwrap .oe_website_login_container > .container::after {
+  #wrapwrap .oe_website_login_container > .container::after,
+  #wrapwrap .oe_website_login_container::before,
+  #wrapwrap .oe_website_login_container::after,
+  #wrapwrap .oe_website_login_container .row::before,
+  #wrapwrap .oe_website_login_container .row::after {
     display:none !important;
   }
   #wrapwrap .oe_website_login_container .row {
     min-height:100vh;
     padding:36px 22px !important;
+    justify-content:center !important;
   }
   #wrapwrap .oe_website_login_container .col,
   #wrapwrap .oe_website_login_container [class*="col-"] {
     max-width:440px !important;
+  }
+  #wrapwrap .oe_website_login_container .card-body > .text-center.small {
+    margin-top:32px !important;
   }
 }
 

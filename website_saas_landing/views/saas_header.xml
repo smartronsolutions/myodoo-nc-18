@@ -204,8 +204,8 @@ body { overflow-x:hidden; }
     <div class="mo_account" id="mo_account">
       <button class="mo_account_btn" id="mo_account_btn" type="button">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <t t-if="request.env.user._is_public()">Sign in</t>
-        <t t-if="not request.env.user._is_public()">My Account</t>
+        <t t-if="request.env.user._is_public()">Connexion</t>
+        <t t-if="not request.env.user._is_public()">Mon Compte</t>
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="mo_account_drop" id="mo_account_drop">
@@ -240,12 +240,6 @@ body { overflow-x:hidden; }
             Mot de passe oublié
           </a>
         </t>
-        <div class="mo_drop_sep"/>
-        <a href="https://myodoo.nc/pricing">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
-          Get Demo
-        </a>
-
       </div>
     </div>
 
@@ -271,8 +265,8 @@ body { overflow-x:hidden; }
   <a href="https://myodoo.nc/pricing" class="mo_mobile_cta">Get Demo</a>
   <div class="mo_mobile_sep"/>
   <span class="mo_mobile_label">
-    <t t-if="request.env.user._is_public()">Sign in</t>
-    <t t-if="not request.env.user._is_public()">My Account</t>
+    <t t-if="request.env.user._is_public()">Connexion</t>
+    <t t-if="not request.env.user._is_public()">Mon Compte</t>
   </span>
   <ul>
     <t t-if="not request.env.user._is_public()">

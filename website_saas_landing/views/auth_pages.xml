@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+<record id="saas_auth_pages" model="ir.ui.view">
+  <field name="name">website_saas_landing.auth_pages</field>
+  <field name="key">website_saas_landing.auth_pages</field>
+  <field name="inherit_id" ref="website.layout"/>
+  <field name="type">qweb</field>
+  <field name="arch" type="xml">
+    <xpath expr="//head" position="inside">
+<style>
+/* My Odoo SaaS auth pages: login / signup / reset */
+html:has(.oe_website_login_container) body,
+html:has(.oe_website_login_container) body.bg-100 {
+  background:#070A16 !important;
+}
+
+html:has(.oe_website_login_container) #wrapwrap > footer,
+html:has(.oe_website_login_container) .o_main_navbar,
+html:has(.oe_website_login_container) .o_website_header {
+  display:none !important;
+}
+
+html:has(.oe_website_login_container) #wrapwrap > main {
+  padding-top:72px !important;
+  margin-top:0 !important;
+}
+
+#wrapwrap .oe_website_login_container {
+  min-height:calc(100vh - 72px);
+  padding:44px 20px 56px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  position:relative !important;
+  overflow:hidden !important;
+  font-family:'Inter','Segoe UI',Arial,sans-serif;
+  background:
+    radial-gradient(ellipse 70% 55% at 16% 12%, rgba(124,58,237,.34) 0%, transparent 58%),
+    radial-gradient(ellipse 62% 48% at 86% 82%, rgba(1,126,132,.28) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 62% 28%, rgba(14,165,233,.16) 0%, transparent 54%),
+    linear-gradient(155deg,#0F172A 0%,#1E1040 48%,#07111F 100%) !important;
+}
+
+#wrapwrap .oe_website_login_container::before,
+#wrapwrap .oe_website_login_container::after {
+  content:'';
+  position:fixed;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:0;
+  filter:blur(42px);
+}
+#wrapwrap .oe_website_login_container::before {
+  top:5%;
+  left:-12%;
+  width:54vw;
+  height:54vw;
+  background:radial-gradient(circle,rgba(139,92,246,.28) 0%,rgba(124,58,237,.08) 44%,transparent 72%);
+}
+#wrapwrap .oe_website_login_container::after {
+  right:-10%;
+  bottom:0;
+  width:48vw;
+  height:48vw;
+  background:radial-gradient(circle,rgba(1,126,132,.24) 0%,rgba(14,165,233,.07) 42%,transparent 72%);
+}
+
+#wrapwrap .oe_website_login_container > .container {
+  max-width:460px !important;
+  width:100% !important;
+  padding:0 !important;
+  margin:0 auto !important;
+  position:relative;
+  z-index:1;
+}
+
+#wrapwrap .oe_website_login_container .row { margin:0 !important; }
+#wrapwrap .oe_website_login_container .col,
+#wrapwrap .oe_website_login_container [class*="col-"] {
+  padding:0 !important;
+  max-width:100% !important;
+  flex:0 0 100% !important;
+}
+
+#wrapwrap .oe_website_login_container .o_database_list,
+#wrapwrap .oe_website_login_container .card.o_database_list {
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  overflow:hidden !important;
+  border-radius:24px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(15,23,42,.68) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.05) inset,
+    0 2px 0 rgba(255,255,255,.08) inset,
+    0 28px 80px rgba(0,0,0,.46),
+    0 10px 38px rgba(124,58,237,.18) !important;
+  backdrop-filter:blur(30px) saturate(1.35) !important;
+  -webkit-backdrop-filter:blur(30px) saturate(1.35) !important;
+}
+
+#wrapwrap .oe_website_login_container .card-body {
+  padding:38px 36px 32px !important;
+  background:transparent !important;
+}
+
+#wrapwrap .oe_website_login_container .card-body > .text-center.pb-3 {
+  padding-bottom:20px !important;
+  margin-bottom:24px !important;
+  border-bottom:1px solid rgba(255,255,255,.1) !important;
+}
+#wrapwrap .oe_website_login_container .card-body > .text-center.pb-3 img {
+  max-height:42px !important;
+  filter:drop-shadow(0 0 14px rgba(139,92,246,.5)) !important;
+}
+
+#wrapwrap .oe_website_login_container .oe_login_form::before,
+#wrapwrap .oe_website_login_container .oe_signup_form::before,
+#wrapwrap .oe_website_login_container .oe_reset_password_form::before {
+  display:block;
+  margin-bottom:7px;
+  font-size:27px;
+  line-height:1.16;
+  font-weight:800;
+  letter-spacing:0;
+  color:#fff;
+}
+#wrapwrap .oe_website_login_container .oe_login_form::before { content:'Welcome back to My Odoo'; }
+#wrapwrap .oe_website_login_container .oe_signup_form::before { content:'Create your My Odoo account'; }
+#wrapwrap .oe_website_login_container .oe_reset_password_form::before { content:'Reset your password'; }
+
+#wrapwrap .oe_website_login_container .oe_login_form::after,
+#wrapwrap .oe_website_login_container .oe_signup_form::after,
+#wrapwrap .oe_website_login_container .oe_reset_password_form::after {
+  display:block;
+  margin-bottom:22px;
+  color:rgba(255,255,255,.58);
+  font-size:14px;
+  line-height:1.6;
+}
+#wrapwrap .oe_website_login_container .oe_login_form::after {
+  content:'Sign in to manage your Odoo cloud projects, branches, builds and billing.';
+}
+#wrapwrap .oe_website_login_container .oe_signup_form::after {
+  content:'Start your SaaS workspace and deploy your first Odoo project in minutes.';
+}
+#wrapwrap .oe_website_login_container .oe_reset_password_form::after {
+  content:'Enter your email address and we will send a secure reset link.';
+}
+
+#wrapwrap .oe_website_login_container label {
+  color:rgba(255,255,255,.68) !important;
+  font-size:12.5px !important;
+  font-weight:700 !important;
+  margin-bottom:6px !important;
+}
+
+#wrapwrap .oe_website_login_container .form-control {
+  min-height:50px !important;
+  color:#fff !important;
+  background:rgba(255,255,255,.065) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  border-radius:12px !important;
+  padding:13px 16px !important;
+  font-size:14px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04) !important;
+  transition:border-color .2s,box-shadow .2s,background .2s !important;
+}
+#wrapwrap .oe_website_login_container .form-control::placeholder {
+  color:rgba(255,255,255,.28) !important;
+}
+#wrapwrap .oe_website_login_container .form-control:focus {
+  color:#fff !important;
+  background:rgba(124,58,237,.12) !important;
+  border-color:rgba(139,92,246,.7) !important;
+  box-shadow:0 0 0 3px rgba(124,58,237,.18), inset 0 1px 0 rgba(255,255,255,.05) !important;
+  outline:none !important;
+}
+
+#wrapwrap .oe_website_login_container .input-group .btn,
+#wrapwrap .oe_website_login_container .o_show_password {
+  min-height:50px !important;
+  color:#8B5CF6 !important;
+  background:rgba(124,58,237,.1) !important;
+  border-color:rgba(255,255,255,.13) !important;
+  border-radius:0 12px 12px 0 !important;
+}
+
+#wrapwrap .oe_website_login_container .btn-primary {
+  min-height:50px !important;
+  border:0 !important;
+  border-radius:12px !important;
+  color:#fff !important;
+  background:linear-gradient(135deg,#7C3AED 0%,#8B5CF6 52%,#017E84 100%) !important;
+  font-weight:800 !important;
+  font-size:15px !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.1) inset,0 12px 34px rgba(124,58,237,.38) !important;
+  transition:transform .22s,box-shadow .22s,filter .22s !important;
+}
+#wrapwrap .oe_website_login_container .btn-primary:hover {
+  transform:translateY(-2px) !important;
+  filter:brightness(1.08) !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 16px 44px rgba(124,58,237,.5) !important;
+}
+
+#wrapwrap .oe_website_login_container .btn-secondary,
+#wrapwrap .oe_website_login_container .btn-outline-secondary {
+  min-height:46px !important;
+  border-radius:12px !important;
+  color:rgba(255,255,255,.78) !important;
+  background:rgba(255,255,255,.06) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  font-weight:650 !important;
+}
+
+#wrapwrap .oe_website_login_container a,
+#wrapwrap .oe_website_login_container .btn-link {
+  color:#A78BFA !important;
+  font-weight:700 !important;
+  text-decoration:none !important;
+}
+#wrapwrap .oe_website_login_container a:hover,
+#wrapwrap .oe_website_login_container .btn-link:hover {
+  color:#C4B5FD !important;
+}
+
+#wrapwrap .oe_website_login_container .alert {
+  border-radius:12px !important;
+  padding:12px 16px !important;
+  font-size:13px !important;
+  line-height:1.55 !important;
+}
+#wrapwrap .oe_website_login_container .alert-danger {
+  color:#FCA5A5 !important;
+  background:rgba(220,38,38,.13) !important;
+  border:1px solid rgba(248,113,113,.32) !important;
+}
+#wrapwrap .oe_website_login_container .alert-success,
+#wrapwrap .oe_website_login_container .alert-info {
+  color:#BAE6FD !important;
+  background:rgba(14,165,233,.11) !important;
+  border:1px solid rgba(14,165,233,.3) !important;
+}
+
+#wrapwrap .oe_website_login_container .card-body > .text-center.small {
+  margin-top:18px !important;
+  padding-top:16px !important;
+  border-top:1px solid rgba(255,255,255,.09) !important;
+  color:rgba(255,255,255,.42) !important;
+  font-size:13px !important;
+}
+#wrapwrap .oe_website_login_container .o_login_auth em {
+  color:rgba(255,255,255,.4) !important;
+}
+#wrapwrap .oe_website_login_container .o_login_auth .list-group-item {
+  color:rgba(255,255,255,.72) !important;
+  background:rgba(255,255,255,.05) !important;
+  border-color:rgba(139,92,246,.22) !important;
+  border-radius:10px !important;
+}
+
+@media(max-width:540px) {
+  #wrapwrap .oe_website_login_container { padding:28px 14px 40px !important; }
+  #wrapwrap .oe_website_login_container .card-body { padding:28px 20px 24px !important; }
+  #wrapwrap .oe_website_login_container .oe_login_form::before,
+  #wrapwrap .oe_website_login_container .oe_signup_form::before,
+  #wrapwrap .oe_website_login_container .oe_reset_password_form::before {
+    font-size:22px !important;
+  }
+}
+</style>
+    </xpath>
+  </field>
+</record>
+
+</data>
+</odoo>

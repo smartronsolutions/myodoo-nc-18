@@ -1,8 +1,6 @@
 import random
 import string
 import os
-import requests
-from lxml import etree
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import logging
@@ -482,21 +480,7 @@ class OdooInstance(models.Model):
 
     def action_backup(self):
         for r in self:
-            url = r.url + '/web/database/backup'
-            # url = 'http://%s/web/database/backup' % r.domain_name
             dbname = r.technical_name.strip()
-            master_password = r.config_ids.filtered(lambda c: c.name == 'admin_passwd')
-            if not master_password:
-                raise UserError(_("Cannot find Master Password of Odoo Instance %s.") % r.name)
-            master_password = master_password[0].value
-            headers = {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            datas = {
-                'master_pwd': master_password,
-                'name': dbname,
-                'backup_format': 'zip',
-            }
             user_root = self.env.ref('base.user_root')
             ts = fields.Datetime.context_timestamp(
                 self.with_context(tz=user_root.tz), datetime.utcnow()
@@ -504,7 +488,7 @@ class OdooInstance(models.Model):
             filename = "%s_%s.%s" % (dbname, ts.strftime("%Y-%m-%d_%H-%M-%S"), 'zip')
 
             # Use a subdirectory within /var/lib/odoo for backups
-            backup_dir = self.company_id.backup_directory or '/var/lib/odoo/backups'
+            backup_dir = r.company_id.backup_directory or '/var/lib/odoo/backups'
             if not os.path.isdir(backup_dir):
                 try:
                     os.makedirs(backup_dir, 0o755, exist_ok=True)
@@ -523,25 +507,22 @@ class OdooInstance(models.Model):
                 'instance_id': r.id
             }
             try:
-                response = requests.request("POST", url, headers=headers, data=datas)
-                if response.headers.get('Content-Type', False) == 'application/octet-stream; charset=binary':
-                    with open(filepath, mode='wb') as f:
-                        f.write(response.content)
-                    filesize = os.path.getsize(filepath) / 1e+6  # File size in byte, so we convert to megabyte
-                    backup_vals['file_size'] = filesize
-                    self.env['saas.odoo.instance.backup'].sudo().create(backup_vals)
-                    # pylint: disable=invalid-commit
-                    self.env.cr.commit()
-                elif 'text/html' in response.headers.get('Content-Type', ''):
-                    html = etree.HTML(response.content)
-                    alert = html.xpath("//div[contains(@class, 'alert-danger')]")
-                    error = alert[0].text if alert else "Unknown Error."
-                    raise Exception(error)
-                else:
-                    raise Exception("Unknown Error.")
+                r.pserver_id._create_odoo_instance_zip_backup(r, filepath)
+                filesize = os.path.getsize(filepath) / 1e+6  # File size in byte, so we convert to megabyte
+                backup_vals['file_size'] = filesize
+                self.env['saas.odoo.instance.backup'].sudo().create(backup_vals)
+                # pylint: disable=invalid-commit
+                self.env.cr.commit()
+            except UserError:
+                raise
+            except PermissionError:
+                raise UserError(
+                    _("Cannot write backup file to '%s'. Ensure the Odoo process can write to this directory.")
+                    % backup_dir
+                )
             except Exception as e:
                 error = str(e) or repr(e)
-                raise UserError(error)
+                raise UserError(_("Database backup error: %s") % error)
 
     def action_restart(self):
         self.docker_container_ids.action_restart()

@@ -1,6 +1,8 @@
 import paramiko
 import json
 import logging
+import os
+import shlex
 from odoo import fields, models, _
 from odoo.exceptions import UserError
 
@@ -364,3 +366,61 @@ class PServer(models.Model):
         self._exec_cmd('mkdir %s' % backup_dir, ssh)
         self._exec_cmd('chmod 755 %s' % backup_dir, ssh)
         ssh.close()
+
+    def _create_odoo_instance_zip_backup(self, instance, local_filepath):
+        ssh = self._connect_or_raise()
+        remote_dir = '/tmp/saas_odoo_backups'
+        remote_name = os.path.splitext(os.path.basename(local_filepath))[0]
+        remote_workdir = '%s/%s' % (remote_dir, remote_name)
+        remote_filepath = '%s/%s' % (remote_dir, os.path.basename(local_filepath))
+        container_name = 'psql_%s' % instance.technical_name
+        db_name = instance.db_name or instance.technical_name
+        filestore_path = '/home/%s/odoo-web-data/filestore/%s' % (instance.technical_name, db_name)
+        cmd = (
+            'set -e; '
+            'rm -rf {remote_workdir} {remote_filepath}; '
+            'mkdir -p {remote_workdir}; '
+            'docker exec -e PGPASSWORD=odoo {container} '
+            'pg_dump -U odoo -d {db_name} > {remote_workdir}/dump.sql; '
+            'mkdir -p {remote_workdir}/filestore; '
+            'if [ -d {filestore_path} ]; then '
+            'cp -a {filestore_contents} {remote_workdir}/filestore/; '
+            'fi; '
+            'cd {remote_workdir}; '
+            'python3 -m zipfile -c {remote_filepath} dump.sql filestore 2>/dev/null || '
+            'python -m zipfile -c {remote_filepath} dump.sql filestore'
+        ).format(
+            remote_workdir=shlex.quote(remote_workdir),
+            remote_filepath=shlex.quote(remote_filepath),
+            container=shlex.quote(container_name),
+            db_name=shlex.quote(db_name),
+            filestore_path=shlex.quote(filestore_path),
+            filestore_contents=shlex.quote(filestore_path + '/.'),
+        )
+        try:
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+            exit_status = stdout.channel.recv_exit_status()
+            error = stderr.read().decode().strip()
+            if exit_status:
+                raise UserError(
+                    _("Database backup error: backup packaging failed for %s. %s")
+                    % (instance.display_name, error or _("Unknown Error."))
+                )
+            sftp = ssh.open_sftp()
+            try:
+                sftp.get(remote_filepath, local_filepath)
+            finally:
+                sftp.close()
+        finally:
+            if ssh:
+                try:
+                    self._exec_cmd(
+                        'rm -rf %s %s' % (
+                            shlex.quote(remote_workdir),
+                            shlex.quote(remote_filepath),
+                        ),
+                        ssh,
+                    )
+                except Exception:
+                    _logger.warning("Could not remove temporary backup files for %s", remote_filepath)
+            ssh.close()

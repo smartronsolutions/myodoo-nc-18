@@ -12,8 +12,7 @@
       <div class="mo_auth_form_col">
         <div class="mo_auth_form_inner">
           <a href="/" class="mo_auth_logo">
-            <img src="/website_saas_landing/static/description/icon.png" alt="My Odoo"/>
-            <span class="mo_auth_logo_text">My Odoo<em>Cloud ERP</em></span>
+            <img t-attf-src="/web/binary/company_logo{{ '?dbname='+db if db else '' }}" alt="Company Logo"/>
           </a>
           <div class="oe_website_login_container" t-out="0"/>
           <div class="mo_auth_foot">
@@ -124,32 +123,17 @@ html:has(.oe_website_login_container) body.bg-100 {
 .mo_auth_logo {
   display:flex;
   align-items:center;
-  gap:12px;
+  justify-content:center;
+  text-align:center;
   text-decoration:none !important;
-  margin-bottom:44px;
+  margin:0 auto 40px;
 }
 .mo_auth_logo img {
-  height:42px;
-  width:42px;
-  border-radius:10px;
-  object-fit:cover;
-  box-shadow:0 4px 14px rgba(124,58,237,.28);
-}
-.mo_auth_logo_text {
-  display:flex;
-  flex-direction:column;
-  line-height:1.2;
-  font-size:1.05rem;
-  font-weight:800;
-  color:#0F172A;
-}
-.mo_auth_logo_text em {
-  font-style:normal;
-  font-size:.68rem;
-  font-weight:700;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  color:#94A3B8;
+  max-height:64px;
+  max-width:220px;
+  width:auto;
+  height:auto;
+  object-fit:contain;
 }
 
 .oe_website_login_container .oe_login_form::before,

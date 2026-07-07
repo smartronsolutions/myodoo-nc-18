@@ -24,16 +24,41 @@
       </div>
       <div class="mo_auth_brand_col">
         <div class="mo_auth_brand_grid"/>
-        <span class="mo_auth_badge">Cloud ERP Platform</span>
-        <h2 class="mo_auth_headline">Your time is <em>precious</em>,<br/>use it to grow.</h2>
-        <div class="mo_auth_testi">
-          <p>"With My Odoo, we stopped worrying about servers, backups and technical
-          complexity. The platform lets us focus 100% on our strategy and growth."</p>
-          <div class="mo_auth_testi_author">
-            <span class="mo_auth_avatar">L</span>
-            <span class="mo_auth_testi_meta"><strong>Léa Bernard</strong><em>Head of Operations</em></span>
+
+        <t t-if="request.httprequest.path == '/web/signup'">
+          <span class="mo_auth_badge">Start Free Today</span>
+          <h2 class="mo_auth_headline">Everything your business needs,<br/>in <em>one platform</em>.</h2>
+          <ul class="mo_auth_features">
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> AI-powered automation &amp; smart insights</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Seamless integrations &amp; API connections</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Secure cloud hosting &amp; automatic backups</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Multi-company &amp; multi-currency support</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Real-time analytics dashboards</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> 24/7 expert support</li>
+          </ul>
+        </t>
+        <t t-elif="request.httprequest.path == '/web/reset_password'">
+          <span class="mo_auth_badge">Account Security</span>
+          <h2 class="mo_auth_headline">Losing access happens.<br/>Getting back in <em>shouldn't be hard</em>.</h2>
+          <ul class="mo_auth_features">
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span> Your data stays encrypted end-to-end</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span> Reset links expire automatically for safety</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg></span> Get back to work in under 2 minutes</li>
+            <li><span class="mo_auth_feat_ico"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Need help? Our support team is one click away</li>
+          </ul>
+        </t>
+        <t t-else="">
+          <span class="mo_auth_badge">Cloud ERP Platform</span>
+          <h2 class="mo_auth_headline">Your time is <em>precious</em>,<br/>use it to grow.</h2>
+          <div class="mo_auth_testi">
+            <p>"With My Odoo, we stopped worrying about servers, backups and technical
+            complexity. The platform lets us focus 100% on our strategy and growth."</p>
+            <div class="mo_auth_testi_author">
+              <span class="mo_auth_avatar">L</span>
+              <span class="mo_auth_testi_meta"><strong>Léa Bernard</strong><em>Head of Operations</em></span>
+            </div>
           </div>
-        </div>
+        </t>
       </div>
     </div>
   </xpath>
@@ -392,6 +417,36 @@ html:has(.oe_website_login_container) body.bg-100 {
 .mo_auth_testi_meta { display:flex; flex-direction:column; line-height:1.35; font-size:.82rem; }
 .mo_auth_testi_meta strong { color:#fff; }
 .mo_auth_testi_meta em { font-style:normal; color:rgba(255,255,255,.5); }
+
+.mo_auth_features {
+  position:relative;
+  z-index:1;
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  max-width:460px;
+}
+.mo_auth_features li {
+  display:flex;
+  align-items:center;
+  gap:13px;
+  font-size:.94rem;
+  color:rgba(255,255,255,.86);
+}
+.mo_auth_feat_ico {
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#7C3AED,#017E84);
+  box-shadow:0 4px 14px rgba(124,58,237,.4);
+}
 
 @keyframes fadeInUp {
   from { opacity:0; transform:translateY(18px); }

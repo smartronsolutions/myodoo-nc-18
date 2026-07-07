@@ -367,6 +367,40 @@ class PServer(models.Model):
         self._exec_cmd('chmod 755 %s' % backup_dir, ssh)
         ssh.close()
 
+    def _get_odoo_instance_database_name(self, instance, ssh):
+        container_name = 'psql_%s' % instance.technical_name
+        cmd = (
+            'docker exec -e PGPASSWORD=odoo {container} '
+            'psql -U odoo -d postgres -At -c '
+            '"SELECT datname FROM pg_database WHERE datistemplate = false AND datname != \'postgres\' ORDER BY datname"'
+        ).format(container=shlex.quote(container_name))
+        stdin, stdout, stderr = ssh.exec_command(cmd)
+        exit_status = stdout.channel.recv_exit_status()
+        error = stderr.read().decode().strip()
+        if exit_status:
+            raise UserError(
+                _("Database backup error: cannot read database list for %s. %s")
+                % (instance.display_name, error or _("Unknown Error."))
+            )
+
+        db_names = [line.strip() for line in stdout.readlines() if line.strip()]
+        candidates = [instance.db_name, instance.technical_name]
+        for candidate in candidates:
+            if candidate and candidate in db_names:
+                return candidate
+
+        if len(db_names) == 1:
+            return db_names[0]
+
+        raise UserError(
+            _("Database backup error: database '%s' was not found for %s. Available databases: %s")
+            % (
+                instance.db_name or instance.technical_name,
+                instance.display_name,
+                ', '.join(db_names) or _("none"),
+            )
+        )
+
     def _create_odoo_instance_zip_backup(self, instance, local_filepath):
         ssh = self._connect_or_raise()
         remote_dir = '/tmp/saas_odoo_backups'
@@ -374,7 +408,7 @@ class PServer(models.Model):
         remote_workdir = '%s/%s' % (remote_dir, remote_name)
         remote_filepath = '%s/%s' % (remote_dir, os.path.basename(local_filepath))
         container_name = 'psql_%s' % instance.technical_name
-        db_name = instance.db_name or instance.technical_name
+        db_name = self._get_odoo_instance_database_name(instance, ssh)
         filestore_path = '/home/%s/odoo-web-data/filestore/%s' % (instance.technical_name, db_name)
         cmd = (
             'set -e; '

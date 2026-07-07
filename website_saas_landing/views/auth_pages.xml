@@ -2,6 +2,52 @@
 <odoo>
 <data>
 
+<!-- Split-screen shell: wraps Odoo's bare .oe_website_login_container (login / signup /
+     reset password) with a left form column and a right branding column.
+     Must run AFTER website.login_layout injects that container, hence priority > 20. -->
+<template id="saas_auth_split_layout" name="SaaS Auth Split-Screen Layout"
+          inherit_id="website.login_layout" priority="24">
+  <xpath expr="//div[hasclass('oe_website_login_container')]" position="replace">
+    <div class="mo_auth_shell">
+      <div class="mo_auth_form_col">
+        <div class="mo_auth_form_inner">
+          <a href="/" class="mo_auth_logo">
+            <img src="/website_saas_landing/static/description/icon.png" alt="My Odoo"/>
+            <span class="mo_auth_logo_text">My Odoo<em>Cloud ERP</em></span>
+          </a>
+          <div class="oe_website_login_container" t-out="0"/>
+          <div class="mo_auth_foot">
+            <span>© My Odoo — All rights reserved.</span>
+            <a href="/">Back to homepage</a>
+          </div>
+        </div>
+      </div>
+      <div class="mo_auth_brand_col">
+        <div class="mo_auth_brand_grid"/>
+        <span class="mo_auth_badge">Cloud ERP Platform</span>
+        <h2 class="mo_auth_headline">Your time is <em>precious</em>,<br/>use it to grow.</h2>
+        <div class="mo_auth_testi">
+          <p>"With My Odoo, we stopped worrying about servers, backups and technical
+          complexity. The platform lets us focus 100% on our strategy and growth."</p>
+          <div class="mo_auth_testi_author">
+            <span class="mo_auth_avatar">L</span>
+            <span class="mo_auth_testi_meta"><strong>Léa Bernard</strong><em>Head of Operations</em></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </xpath>
+</template>
+
+<!-- Distinguish the "email sent" success screen from the real reset-password form: both
+     reuse the oe_login_form class in auth_signup, which would otherwise get the wrong heading. -->
+<template id="saas_reset_password_success_class" name="Tag reset-password success screen"
+          inherit_id="auth_signup.reset_password">
+  <xpath expr="//div[hasclass('oe_login_form')]" position="attributes">
+    <attribute name="class" add="mo_reset_success" separator=" "/>
+  </xpath>
+</template>
+
 <record id="saas_auth_pages" model="ir.ui.view">
   <field name="name">website_saas_landing.auth_pages</field>
   <field name="key">website_saas_landing.auth_pages</field>
@@ -10,265 +56,362 @@
   <field name="arch" type="xml">
     <xpath expr="//head" position="inside">
 <style>
-/* My Odoo SaaS auth pages: login / signup / reset */
-html:has(.oe_website_login_container) body,
-html:has(.oe_website_login_container) body.bg-100 {
-  background:#070A16 !important;
-}
-
+/* ===================================================
+   My Odoo — Auth pages (login / signup / reset password)
+   Split-screen: white form column (left) + branded column (right)
+   ================================================= */
 html:has(.oe_website_login_container) #wrapwrap > footer,
 html:has(.oe_website_login_container) .o_main_navbar,
 html:has(.oe_website_login_container) .o_website_header {
   display:none !important;
 }
-
 html:has(.oe_website_login_container) #wrapwrap > main {
   padding-top:72px !important;
   margin-top:0 !important;
 }
+html:has(.oe_website_login_container) body,
+html:has(.oe_website_login_container) body.bg-100 {
+  background:#fff !important;
+}
 
-#wrapwrap .oe_website_login_container {
+.mo_auth_shell {
+  display:flex;
   min-height:calc(100vh - 72px);
-  padding:44px 20px 56px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  position:relative !important;
-  overflow:hidden !important;
-  font-family:'Inter','Segoe UI',Arial,sans-serif;
-  background:
-    radial-gradient(ellipse 70% 55% at 16% 12%, rgba(124,58,237,.34) 0%, transparent 58%),
-    radial-gradient(ellipse 62% 48% at 86% 82%, rgba(1,126,132,.28) 0%, transparent 58%),
-    radial-gradient(ellipse 50% 40% at 62% 28%, rgba(14,165,233,.16) 0%, transparent 54%),
-    linear-gradient(155deg,#0F172A 0%,#1E1040 48%,#07111F 100%) !important;
+  font-family:'Inter',system-ui,sans-serif;
 }
 
-#wrapwrap .oe_website_login_container::before,
-#wrapwrap .oe_website_login_container::after {
-  content:'';
-  position:fixed;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:0;
-  filter:blur(42px);
-}
-#wrapwrap .oe_website_login_container::before {
-  top:5%;
-  left:-12%;
-  width:54vw;
-  height:54vw;
-  background:radial-gradient(circle,rgba(139,92,246,.28) 0%,rgba(124,58,237,.08) 44%,transparent 72%);
-}
-#wrapwrap .oe_website_login_container::after {
-  right:-10%;
-  bottom:0;
-  width:48vw;
-  height:48vw;
-  background:radial-gradient(circle,rgba(1,126,132,.24) 0%,rgba(14,165,233,.07) 42%,transparent 72%);
-}
-
-#wrapwrap .oe_website_login_container > .container {
-  max-width:460px !important;
-  width:100% !important;
-  padding:0 !important;
-  margin:0 auto !important;
+/* ── LEFT: FORM COLUMN ── */
+.mo_auth_form_col {
+  flex:1 1 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  padding:48px 8%;
   position:relative;
-  z-index:1;
+}
+.mo_auth_form_inner {
+  width:100%;
+  max-width:400px;
+  animation:fadeInUp .5s ease both;
 }
 
-#wrapwrap .oe_website_login_container .row { margin:0 !important; }
-#wrapwrap .oe_website_login_container .col,
-#wrapwrap .oe_website_login_container [class*="col-"] {
-  padding:0 !important;
-  max-width:100% !important;
-  flex:0 0 100% !important;
+.mo_auth_logo {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none !important;
+  margin-bottom:44px;
+}
+.mo_auth_logo img {
+  height:42px;
+  width:42px;
+  border-radius:10px;
+  object-fit:cover;
+  box-shadow:0 4px 14px rgba(124,58,237,.28);
+}
+.mo_auth_logo_text {
+  display:flex;
+  flex-direction:column;
+  line-height:1.2;
+  font-size:1.05rem;
+  font-weight:800;
+  color:#0F172A;
+}
+.mo_auth_logo_text em {
+  font-style:normal;
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#94A3B8;
 }
 
-#wrapwrap .oe_website_login_container .o_database_list,
-#wrapwrap .oe_website_login_container .card.o_database_list {
-  width:100% !important;
-  max-width:none !important;
-  margin:0 !important;
-  overflow:hidden !important;
-  border-radius:24px !important;
-  border:1px solid rgba(255,255,255,.14) !important;
-  background:rgba(15,23,42,.68) !important;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.05) inset,
-    0 2px 0 rgba(255,255,255,.08) inset,
-    0 28px 80px rgba(0,0,0,.46),
-    0 10px 38px rgba(124,58,237,.18) !important;
-  backdrop-filter:blur(30px) saturate(1.35) !important;
-  -webkit-backdrop-filter:blur(30px) saturate(1.35) !important;
-}
-
-#wrapwrap .oe_website_login_container .card-body {
-  padding:38px 36px 32px !important;
-  background:transparent !important;
-}
-
-#wrapwrap .oe_website_login_container .card-body > .text-center.pb-3 {
-  padding-bottom:20px !important;
-  margin-bottom:24px !important;
-  border-bottom:1px solid rgba(255,255,255,.1) !important;
-}
-#wrapwrap .oe_website_login_container .card-body > .text-center.pb-3 img {
-  max-height:42px !important;
-  filter:drop-shadow(0 0 14px rgba(139,92,246,.5)) !important;
-}
-
-#wrapwrap .oe_website_login_container .oe_login_form::before,
-#wrapwrap .oe_website_login_container .oe_signup_form::before,
-#wrapwrap .oe_website_login_container .oe_reset_password_form::before {
+.oe_website_login_container .oe_login_form::before,
+.oe_website_login_container .oe_signup_form::before,
+.oe_website_login_container .oe_reset_password_form::before {
   display:block;
   margin-bottom:7px;
-  font-size:27px;
-  line-height:1.16;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:1.7rem;
+  line-height:1.2;
   font-weight:800;
-  letter-spacing:0;
-  color:#fff;
+  letter-spacing:-.5px;
+  color:#0F172A;
 }
-#wrapwrap .oe_website_login_container .oe_login_form::before { content:'Welcome back to My Odoo'; }
-#wrapwrap .oe_website_login_container .oe_signup_form::before { content:'Create your My Odoo account'; }
-#wrapwrap .oe_website_login_container .oe_reset_password_form::before { content:'Reset your password'; }
+.oe_website_login_container .oe_login_form::before { content:'Welcome back.'; }
+.oe_website_login_container .oe_signup_form::before { content:'Create your account.'; }
+.oe_website_login_container .oe_reset_password_form::before { content:'Reset your password.'; }
 
-#wrapwrap .oe_website_login_container .oe_login_form::after,
-#wrapwrap .oe_website_login_container .oe_signup_form::after,
-#wrapwrap .oe_website_login_container .oe_reset_password_form::after {
+.oe_website_login_container .oe_login_form::after,
+.oe_website_login_container .oe_signup_form::after,
+.oe_website_login_container .oe_reset_password_form::after {
   display:block;
-  margin-bottom:22px;
-  color:rgba(255,255,255,.58);
-  font-size:14px;
+  margin-bottom:26px;
+  color:#64748B;
+  font-size:.9rem;
   line-height:1.6;
 }
-#wrapwrap .oe_website_login_container .oe_login_form::after {
-  content:'Sign in to manage your Odoo cloud projects, branches, builds and billing.';
+.oe_website_login_container .oe_login_form::after {
+  content:'Sign in to manage your Odoo cloud projects and billing.';
 }
-#wrapwrap .oe_website_login_container .oe_signup_form::after {
-  content:'Start your SaaS workspace and deploy your first Odoo project in minutes.';
+.oe_website_login_container .oe_signup_form::after {
+  content:'Start your workspace and deploy your first Odoo project in minutes.';
 }
-#wrapwrap .oe_website_login_container .oe_reset_password_form::after {
-  content:'Enter your email address and we will send a secure reset link.';
+.oe_website_login_container .oe_reset_password_form::after {
+  content:'Enter your email address and we will send you a secure reset link.';
+}
+/* Success screen after a reset-password request already shows its own message */
+.oe_website_login_container .mo_reset_success::before,
+.oe_website_login_container .mo_reset_success::after {
+  display:none !important;
 }
 
-#wrapwrap .oe_website_login_container label {
-  color:rgba(255,255,255,.68) !important;
-  font-size:12.5px !important;
+.oe_website_login_container label {
+  display:block;
+  color:#334155 !important;
+  font-size:12px !important;
   font-weight:700 !important;
-  margin-bottom:6px !important;
+  letter-spacing:.3px;
+  margin-bottom:7px !important;
 }
 
-#wrapwrap .oe_website_login_container .form-control {
+.oe_website_login_container .form-control {
   min-height:50px !important;
-  color:#fff !important;
-  background:rgba(255,255,255,.065) !important;
-  border:1px solid rgba(255,255,255,.13) !important;
+  width:100%;
+  color:#0F172A !important;
+  background-color:#F8FAFC !important;
+  border:1.5px solid #E2E8F0 !important;
   border-radius:12px !important;
-  padding:13px 16px !important;
+  padding:13px 16px 13px 44px !important;
   font-size:14px !important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04) !important;
-  transition:border-color .2s,box-shadow .2s,background .2s !important;
+  background-repeat:no-repeat !important;
+  background-position:16px center !important;
+  background-size:18px 18px !important;
+  transition:border-color .2s,box-shadow .2s,background-color .2s !important;
 }
-#wrapwrap .oe_website_login_container .form-control::placeholder {
-  color:rgba(255,255,255,.28) !important;
-}
-#wrapwrap .oe_website_login_container .form-control:focus {
-  color:#fff !important;
-  background:rgba(124,58,237,.12) !important;
-  border-color:rgba(139,92,246,.7) !important;
-  box-shadow:0 0 0 3px rgba(124,58,237,.18), inset 0 1px 0 rgba(255,255,255,.05) !important;
+.oe_website_login_container .form-control::placeholder { color:#94A3B8 !important; }
+.oe_website_login_container .form-control:focus {
+  background-color:#fff !important;
+  border-color:#7C3AED !important;
+  box-shadow:0 0 0 4px rgba(124,58,237,.12) !important;
   outline:none !important;
 }
 
-#wrapwrap .oe_website_login_container .input-group .btn,
-#wrapwrap .oe_website_login_container .o_show_password {
-  min-height:50px !important;
-  color:#8B5CF6 !important;
-  background:rgba(124,58,237,.1) !important;
-  border-color:rgba(255,255,255,.13) !important;
-  border-radius:0 12px 12px 0 !important;
+.oe_website_login_container input#login,
+.oe_website_login_container input[name="login"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%2394A3B8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='2'%20y='4'%20width='20'%20height='16'%20rx='2'/%3E%3Cpath%20d='M2%206l10%207L22%206'/%3E%3C/svg%3E") !important;
+}
+.oe_website_login_container input#password,
+.oe_website_login_container input[name="password"],
+.oe_website_login_container input[name="confirm_password"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%2394A3B8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='4'%20y='11'%20width='16'%20height='9'%20rx='2'/%3E%3Cpath%20d='M8%2011V7a4%204%200%200%201%208%200v4'/%3E%3C/svg%3E") !important;
+}
+.oe_website_login_container input#name,
+.oe_website_login_container input[name="name"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%2394A3B8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='12'%20cy='8'%20r='4'/%3E%3Cpath%20d='M4%2020c0-4%203.6-7%208-7s8%203%208%207'/%3E%3C/svg%3E") !important;
+}
+.oe_website_login_container input#db,
+.oe_website_login_container input[name="db"] {
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%2394A3B8'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cellipse%20cx='12'%20cy='5'%20rx='8'%20ry='3'/%3E%3Cpath%20d='M4%205v14c0%201.7%203.6%203%208%203s8-1.3%208-3V5'/%3E%3Cpath%20d='M4%2012c0%201.7%203.6%203%208%203s8-1.3%208-3'/%3E%3C/svg%3E") !important;
 }
 
-#wrapwrap .oe_website_login_container .btn-primary {
+.oe_website_login_container .input-group { display:flex !important; }
+.oe_website_login_container .input-group .form-control {
+  border-top-right-radius:0 !important;
+  border-bottom-right-radius:0 !important;
+}
+.oe_website_login_container .input-group .btn {
   min-height:50px !important;
+  color:#475569 !important;
+  background:#F1F5F9 !important;
+  border:1.5px solid #E2E8F0 !important;
+  border-left:none !important;
+  border-top-right-radius:12px !important;
+  border-bottom-right-radius:12px !important;
+  font-weight:600 !important;
+  font-size:13px !important;
+}
+.oe_website_login_container .input-group .btn:hover { background:#E2E8F0 !important; }
+
+.oe_website_login_container .btn-primary {
+  min-height:50px !important;
+  width:100%;
   border:0 !important;
   border-radius:12px !important;
   color:#fff !important;
   background:linear-gradient(135deg,#7C3AED 0%,#8B5CF6 52%,#017E84 100%) !important;
-  font-weight:800 !important;
-  font-size:15px !important;
-  box-shadow:0 0 0 1px rgba(255,255,255,.1) inset,0 12px 34px rgba(124,58,237,.38) !important;
-  transition:transform .22s,box-shadow .22s,filter .22s !important;
-}
-#wrapwrap .oe_website_login_container .btn-primary:hover {
-  transform:translateY(-2px) !important;
-  filter:brightness(1.08) !important;
-  box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 16px 44px rgba(124,58,237,.5) !important;
-}
-
-#wrapwrap .oe_website_login_container .btn-secondary,
-#wrapwrap .oe_website_login_container .btn-outline-secondary {
-  min-height:46px !important;
-  border-radius:12px !important;
-  color:rgba(255,255,255,.78) !important;
-  background:rgba(255,255,255,.06) !important;
-  border:1px solid rgba(255,255,255,.14) !important;
-  font-weight:650 !important;
-}
-
-#wrapwrap .oe_website_login_container a,
-#wrapwrap .oe_website_login_container .btn-link {
-  color:#A78BFA !important;
   font-weight:700 !important;
+  font-size:15px !important;
+  box-shadow:0 12px 30px rgba(124,58,237,.28) !important;
+  transition:transform .2s,box-shadow .2s,filter .2s !important;
+}
+.oe_website_login_container .btn-primary:hover {
+  transform:translateY(-2px) !important;
+  filter:brightness(1.06) !important;
+  box-shadow:0 16px 38px rgba(124,58,237,.38) !important;
+}
+
+.oe_website_login_container a,
+.oe_website_login_container .btn-link {
+  color:#7C3AED !important;
+  font-weight:600 !important;
   text-decoration:none !important;
 }
-#wrapwrap .oe_website_login_container a:hover,
-#wrapwrap .oe_website_login_container .btn-link:hover {
-  color:#C4B5FD !important;
-}
+.oe_website_login_container a:hover,
+.oe_website_login_container .btn-link:hover { color:#5B21B6 !important; text-decoration:underline !important; }
 
-#wrapwrap .oe_website_login_container .alert {
+.oe_website_login_container .alert {
   border-radius:12px !important;
   padding:12px 16px !important;
   font-size:13px !important;
   line-height:1.55 !important;
 }
-#wrapwrap .oe_website_login_container .alert-danger {
-  color:#FCA5A5 !important;
-  background:rgba(220,38,38,.13) !important;
-  border:1px solid rgba(248,113,113,.32) !important;
+.oe_website_login_container .alert-danger {
+  color:#B91C1C !important;
+  background:#FEF2F2 !important;
+  border:1px solid #FECACA !important;
 }
-#wrapwrap .oe_website_login_container .alert-success,
-#wrapwrap .oe_website_login_container .alert-info {
-  color:#BAE6FD !important;
-  background:rgba(14,165,233,.11) !important;
-  border:1px solid rgba(14,165,233,.3) !important;
+.oe_website_login_container .alert-success,
+.oe_website_login_container .alert-info {
+  color:#075985 !important;
+  background:#F0F9FF !important;
+  border:1px solid #BAE6FD !important;
 }
 
-#wrapwrap .oe_website_login_container .card-body > .text-center.small {
-  margin-top:18px !important;
-  padding-top:16px !important;
-  border-top:1px solid rgba(255,255,255,.09) !important;
-  color:rgba(255,255,255,.42) !important;
-  font-size:13px !important;
-}
-#wrapwrap .oe_website_login_container .o_login_auth em {
-  color:rgba(255,255,255,.4) !important;
-}
-#wrapwrap .oe_website_login_container .o_login_auth .list-group-item {
-  color:rgba(255,255,255,.72) !important;
-  background:rgba(255,255,255,.05) !important;
-  border-color:rgba(139,92,246,.22) !important;
+.oe_website_login_container .o_login_auth em { color:#94A3B8 !important; }
+.oe_website_login_container .o_login_auth .list-group-item {
+  color:#334155 !important;
+  background:#F8FAFC !important;
+  border-color:#E2E8F0 !important;
   border-radius:10px !important;
 }
 
+.mo_auth_foot {
+  margin-top:28px;
+  padding-top:18px;
+  border-top:1px solid #F1F5F9;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+  font-size:12.5px;
+  color:#94A3B8;
+}
+.mo_auth_foot a { color:#7C3AED !important; font-weight:600 !important; }
+
+/* ── RIGHT: BRANDING COLUMN ── */
+.mo_auth_brand_col {
+  flex:1 1 50%;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:28px;
+  padding:64px 7%;
+  color:#fff;
+  background:
+    radial-gradient(ellipse 60% 50% at 18% 10%, rgba(139,92,246,.4) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 45% at 88% 88%, rgba(1,126,132,.32) 0%, transparent 58%),
+    linear-gradient(160deg,#0F172A 0%,#1E1040 55%,#07111F 100%);
+  animation:slideInRight .6s ease both;
+}
+.mo_auth_brand_grid {
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1px);
+  background-size:26px 26px;
+  pointer-events:none;
+}
+.mo_auth_badge {
+  position:relative;
+  z-index:1;
+  align-self:flex-start;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:100px;
+  padding:7px 16px;
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  backdrop-filter:blur(6px);
+}
+.mo_auth_headline {
+  position:relative;
+  z-index:1;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:2.6rem;
+  font-weight:800;
+  line-height:1.14;
+  letter-spacing:-1px;
+  margin:0;
+  max-width:520px;
+}
+.mo_auth_headline em {
+  font-style:italic;
+  font-weight:700;
+  background:linear-gradient(135deg,#A78BFA,#5EEAD4);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.mo_auth_testi {
+  position:relative;
+  z-index:1;
+  max-width:460px;
+  padding:24px 26px;
+  border-radius:18px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);
+}
+.mo_auth_testi p {
+  margin:0 0 18px;
+  font-size:.95rem;
+  line-height:1.7;
+  color:rgba(255,255,255,.82);
+}
+.mo_auth_testi_author { display:flex; align-items:center; gap:12px; }
+.mo_auth_avatar {
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:linear-gradient(135deg,#7C3AED,#017E84);
+}
+.mo_auth_testi_meta { display:flex; flex-direction:column; line-height:1.35; font-size:.82rem; }
+.mo_auth_testi_meta strong { color:#fff; }
+.mo_auth_testi_meta em { font-style:normal; color:rgba(255,255,255,.5); }
+
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(18px); }
+  to { opacity:1; transform:translateY(0); }
+}
+@keyframes slideInRight {
+  from { opacity:0; transform:translateX(24px); }
+  to { opacity:1; transform:translateX(0); }
+}
+
+@media(max-width:991px) {
+  .mo_auth_brand_col { display:none; }
+  .mo_auth_form_col { flex:1 1 100%; }
+}
 @media(max-width:540px) {
-  #wrapwrap .oe_website_login_container { padding:28px 14px 40px !important; }
-  #wrapwrap .oe_website_login_container .card-body { padding:28px 20px 24px !important; }
-  #wrapwrap .oe_website_login_container .oe_login_form::before,
-  #wrapwrap .oe_website_login_container .oe_signup_form::before,
-  #wrapwrap .oe_website_login_container .oe_reset_password_form::before {
-    font-size:22px !important;
+  .mo_auth_form_col { padding:36px 6%; }
+  .oe_website_login_container .oe_login_form::before,
+  .oe_website_login_container .oe_signup_form::before,
+  .oe_website_login_container .oe_reset_password_form::before {
+    font-size:1.4rem;
   }
 }
 </style>

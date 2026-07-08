@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="saas_odoo_instance_backup_restore_wizard_form" model="ir.ui.view">
+        <field name="name">saas.odoo.instance.backup.restore.wizard.form</field>
+        <field name="model">saas.odoo.instance.backup.restore.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Restore Backup">
+            	<div class="bg-danger text-white fw-bold p-3 mb16">
+            		This will overwrite the database and filestore of the selected instance with this backup.
+            		This action cannot be undone. If you are sure, enter 'yes' in the confirmation box before restoring.
+            	</div>
+            	<group>
+            		<group>
+                        <field name="backup_id" invisible="1"/>
+                        <field name="odoo_version_id" readonly="1"/>
+                        <field name="instance_id"/>
+                        <field name="confirmation"/>
+                    </group>
+            	</group>
+				<footer>
+                    <button name="action_restore" string="Restore Backup" type="object" class="btn-danger" />
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="saas_odoo_instance_backup_restore_wizard_action" model="ir.actions.act_window">
+        <field name="name">Restore Backup</field>
+        <field name="res_model">saas.odoo.instance.backup.restore.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="saas_odoo_instance_backup_restore_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

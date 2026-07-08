@@ -458,3 +458,72 @@ class PServer(models.Model):
                 except Exception:
                     _logger.warning("Could not remove temporary backup files for %s", remote_filepath)
             ssh.close()
+
+    def _restore_odoo_instance_backup(self, instance, backup):
+        ssh = self._connect_or_raise()
+        remote_dir = '/tmp/saas_odoo_restores'
+        remote_name = os.path.splitext(os.path.basename(backup.file_path))[0]
+        remote_workdir = '%s/%s' % (remote_dir, remote_name)
+        remote_zip_path = '%s/%s' % (remote_dir, os.path.basename(backup.file_path))
+        psql_container = 'psql_%s' % instance.technical_name
+        odoo_container = 'odoo_%s' % instance.technical_name
+        db_name = self._get_odoo_instance_database_name(instance, ssh)
+        filestore_path = '/home/%s/odoo-web-data/filestore/%s' % (instance.technical_name, db_name)
+
+        try:
+            self._exec_cmd('mkdir -p %s' % shlex.quote(remote_dir), ssh)
+
+            sftp = ssh.open_sftp()
+            try:
+                sftp.put(backup.file_path, remote_zip_path)
+            finally:
+                sftp.close()
+
+            cmd = (
+                'set -e; '
+                'rm -rf {remote_workdir}; mkdir -p {remote_workdir}; '
+                'cd {remote_workdir}; '
+                '(python3 -m zipfile -e {remote_zip_path} . 2>/dev/null || python -m zipfile -e {remote_zip_path} .); '
+                'docker stop {odoo_container} || true; '
+                'docker exec -e PGPASSWORD=odoo {psql_container} psql -U odoo -d postgres -c '
+                '"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = \'{db_name_sql}\'"; '
+                'docker exec -e PGPASSWORD=odoo {psql_container} dropdb -U odoo --if-exists {db_name_shell}; '
+                'docker exec -e PGPASSWORD=odoo {psql_container} createdb -U odoo {db_name_shell}; '
+                'cat {remote_workdir}/dump.sql | docker exec -i -e PGPASSWORD=odoo {psql_container} psql -U odoo -d {db_name_shell} -q; '
+                'rm -rf {filestore_path}; mkdir -p {filestore_path}; '
+                'if [ -d {remote_workdir}/filestore ]; then cp -a {remote_workdir}/filestore/. {filestore_path}/; fi; '
+                'docker start {odoo_container}'
+            ).format(
+                remote_workdir=shlex.quote(remote_workdir),
+                remote_zip_path=shlex.quote(remote_zip_path),
+                odoo_container=shlex.quote(odoo_container),
+                psql_container=shlex.quote(psql_container),
+                db_name_sql=db_name,
+                db_name_shell=shlex.quote(db_name),
+                filestore_path=shlex.quote(filestore_path),
+            )
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+            exit_status = stdout.channel.recv_exit_status()
+            error = stderr.read().decode().strip()
+            if exit_status:
+                try:
+                    self._exec_cmd('docker start %s' % shlex.quote(odoo_container), ssh)
+                except Exception:
+                    _logger.warning("Could not restart odoo container for %s after failed restore", instance.display_name)
+                raise UserError(
+                    _("Database restore error for %s: %s")
+                    % (instance.display_name, error or _("Unknown Error."))
+                )
+        finally:
+            if ssh:
+                try:
+                    self._exec_cmd(
+                        'rm -rf %s %s' % (
+                            shlex.quote(remote_workdir),
+                            shlex.quote(remote_zip_path),
+                        ),
+                        ssh,
+                    )
+                except Exception:
+                    _logger.warning("Could not remove temporary restore files for %s", remote_zip_path)
+                ssh.close()

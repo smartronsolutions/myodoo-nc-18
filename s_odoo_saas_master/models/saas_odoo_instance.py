@@ -504,7 +504,8 @@ class OdooInstance(models.Model):
                 'datetime': fields.Datetime.to_string(ts),
                 'format': 'zip',
                 'file_path': filepath,
-                'instance_id': r.id
+                'instance_id': r.id,
+                'odoo_version_id': r.odoo_version_id.id,
             }
             try:
                 r.pserver_id._create_odoo_instance_zip_backup(r, filepath)

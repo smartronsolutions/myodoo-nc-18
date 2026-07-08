@@ -35,6 +35,7 @@
         'wizard/saas_odoo_instance_redeploy_wizard_views.xml',
         'wizard/saas_odoo_instance_upgrade_module_wizard_views.xml',
         'wizard/odoo_instance_cancel_wizard_views.xml',
+        'wizard/saas_odoo_instance_backup_restore_wizard_views.xml',
         'views/saas_menu_views.xml',
         'views/saas_ssh_keypair_views.xml',
         'views/saas_odoo_version_views.xml',

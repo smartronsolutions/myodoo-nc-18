@@ -534,6 +534,7 @@ class PServer(models.Model):
                 'cat {remote_workdir}/dump.sql | docker exec -i -e PGPASSWORD=odoo {psql_container} psql -U odoo -d {db_name_shell} -q; '
                 'rm -rf {filestore_path}; mkdir -p {filestore_path}; '
                 'if [ -d {remote_filestore_dir} ]; then cp -a {remote_filestore_dir}/. {filestore_path}/; fi; '
+                'chmod -R 777 {filestore_path}; '
                 'docker start {odoo_container}'
             ).format(
                 remote_workdir=shlex.quote(remote_workdir),

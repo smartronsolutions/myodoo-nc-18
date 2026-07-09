@@ -440,11 +440,21 @@ class PServer(models.Model):
                     _("Database backup error: backup packaging failed for %s. %s")
                     % (instance.display_name, error or _("Unknown Error."))
                 )
+
+            count_stdin, count_stdout, count_stderr = ssh.exec_command(
+                'find %s -type f 2>/dev/null | wc -l' % shlex.quote(remote_workdir + '/filestore')
+            )
+            count_stdout.channel.recv_exit_status()
+            count_lines = count_stdout.readlines()
+            filestore_file_count = int(count_lines[0].strip()) if count_lines and count_lines[0].strip().isdigit() else 0
+
             sftp = ssh.open_sftp()
             try:
                 sftp.get(remote_filepath, local_filepath)
             finally:
                 sftp.close()
+
+            return filestore_file_count
         finally:
             if ssh:
                 try:

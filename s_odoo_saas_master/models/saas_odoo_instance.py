@@ -508,9 +508,14 @@ class OdooInstance(models.Model):
                 'odoo_version_id': r.odoo_version_id.id,
             }
             try:
-                r.pserver_id._create_odoo_instance_zip_backup(r, filepath)
+                filestore_file_count = r.pserver_id._create_odoo_instance_zip_backup(r, filepath)
                 filesize = os.path.getsize(filepath) / 1e+6  # File size in byte, so we convert to megabyte
                 backup_vals['file_size'] = filesize
+                if not filestore_file_count:
+                    backup_vals['description'] = _(
+                        "Warning: no filestore files were found on the server when this backup was taken "
+                        "(0 attachments). Images, documents and the company logo will not be restorable from this backup."
+                    )
                 self.env['saas.odoo.instance.backup'].sudo().create(backup_vals)
                 # pylint: disable=invalid-commit
                 self.env.cr.commit()

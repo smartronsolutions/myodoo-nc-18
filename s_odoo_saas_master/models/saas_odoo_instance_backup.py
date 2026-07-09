@@ -1,8 +1,8 @@
 import os
 import threading
-import odoo
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.modules.registry import Registry
 
 
 class OdooInstanceBackup(models.Model):
@@ -98,7 +98,7 @@ class OdooInstanceBackup(models.Model):
         uid = self.env.uid
 
         def run_restore():
-            registry = odoo.registry(dbname)
+            registry = Registry(dbname)
             with registry.cursor() as cr:
                 env = api.Environment(cr, uid, {})
                 backup = env['saas.odoo.instance.backup'].sudo().browse(backup_id)

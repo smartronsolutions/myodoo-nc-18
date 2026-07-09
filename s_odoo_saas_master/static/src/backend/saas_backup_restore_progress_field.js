@@ -11,7 +11,10 @@ export class SaasBackupRestoreProgress extends Component {
 
     setup() {
         this.orm = useService("orm");
-        this.state = useState({ message: this.props.record.data[this.props.name] });
+        this.state = useState({
+            message: this.props.record.data[this.props.name],
+            refreshing: false,
+        });
         this.pollTimer = null;
         this._schedulePoll();
         onWillUnmount(() => this._clearPoll());
@@ -32,19 +35,43 @@ export class SaasBackupRestoreProgress extends Component {
     }
 
     async _poll() {
-        const resId = this.props.record.resId;
-        if (!resId) {
+        try {
+            await this.refresh();
+        } catch (e) {
+            console.warn("Restore progress poll failed, will retry", e);
+        } finally {
+            this._schedulePoll();
+        }
+    }
+
+    async refresh() {
+        if (!this.props.record.resId) {
             return;
         }
-        const [values] = await this.orm.read(this.props.record.resModel, [resId], [
-            "restore_state",
-            "restore_status_message",
-        ]);
-        this.state.message = values.restore_status_message;
-        await this.props.record.update({
-            restore_state: values.restore_state,
-            restore_status_message: values.restore_status_message,
-        });
+        this.state.refreshing = true;
+        try {
+            if (this.props.record.load) {
+                await this.props.record.load();
+                this.state.message = this.props.record.data[this.props.name];
+            } else {
+                const [values] = await this.orm.read(this.props.record.resModel, [this.props.record.resId], [
+                    "restore_state",
+                    "restore_status_message",
+                ]);
+                this.state.message = values.restore_status_message;
+                await this.props.record.update({
+                    restore_state: values.restore_state,
+                    restore_status_message: values.restore_status_message,
+                });
+            }
+        } finally {
+            this.state.refreshing = false;
+        }
+    }
+
+    async onRefreshClick() {
+        this._clearPoll();
+        await this.refresh();
         this._schedulePoll();
     }
 }

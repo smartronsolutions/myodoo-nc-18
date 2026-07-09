@@ -468,7 +468,10 @@ class PServer(models.Model):
         remote_filestore_dir = '%s/filestore' % remote_workdir
         psql_container = 'psql_%s' % instance.technical_name
         odoo_container = 'odoo_%s' % instance.technical_name
-        db_name = self._get_odoo_instance_database_name(instance, ssh)
+        # Use the instance's configured database name rather than looking it up on the
+        # server: the target database may have been deleted before restoring, in which
+        # case there is nothing yet for a lookup to find.
+        db_name = instance.db_name or instance.technical_name
         filestore_path = '/home/%s/odoo-web-data/filestore/%s' % (instance.technical_name, db_name)
 
         def run(command):

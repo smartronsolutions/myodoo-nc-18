@@ -465,10 +465,18 @@ class PServer(models.Model):
         remote_name = os.path.splitext(os.path.basename(backup.file_path))[0]
         remote_workdir = '%s/%s' % (remote_dir, remote_name)
         remote_zip_path = '%s/%s' % (remote_dir, os.path.basename(backup.file_path))
+        remote_filestore_dir = '%s/filestore' % remote_workdir
         psql_container = 'psql_%s' % instance.technical_name
         odoo_container = 'odoo_%s' % instance.technical_name
         db_name = self._get_odoo_instance_database_name(instance, ssh)
         filestore_path = '/home/%s/odoo-web-data/filestore/%s' % (instance.technical_name, db_name)
+
+        def run(command):
+            stdin, stdout, stderr = ssh.exec_command(command)
+            status = stdout.channel.recv_exit_status()
+            out = stdout.readlines()
+            err = stderr.read().decode().strip()
+            return status, out, err
 
         try:
             self._exec_cmd('mkdir -p %s' % shlex.quote(remote_dir), ssh)
@@ -479,11 +487,32 @@ class PServer(models.Model):
             finally:
                 sftp.close()
 
-            cmd = (
+            extract_cmd = (
+                'set -e; rm -rf {remote_workdir}; mkdir -p {remote_workdir}; cd {remote_workdir}; '
+                '(python3 -m zipfile -e {remote_zip_path} . 2>/dev/null || python -m zipfile -e {remote_zip_path} .)'
+            ).format(
+                remote_workdir=shlex.quote(remote_workdir),
+                remote_zip_path=shlex.quote(remote_zip_path),
+            )
+            status, _out, error = run(extract_cmd)
+            if status:
+                raise UserError(
+                    _("Database restore error for %s: backup extraction failed. %s")
+                    % (instance.display_name, error or _("Unknown Error."))
+                )
+
+            status, out, _err = run('test -s %s/dump.sql && echo OK || echo MISSING' % shlex.quote(remote_workdir))
+            if not out or out[0].strip() != 'OK':
+                raise UserError(
+                    _("Database restore error for %s: backup does not contain a valid database dump.")
+                    % instance.display_name
+                )
+
+            status, out, _err = run('find %s -type f 2>/dev/null | wc -l' % shlex.quote(remote_filestore_dir))
+            filestore_file_count = int(out[0].strip()) if out and out[0].strip().isdigit() else 0
+
+            restore_cmd = (
                 'set -e; '
-                'rm -rf {remote_workdir}; mkdir -p {remote_workdir}; '
-                'cd {remote_workdir}; '
-                '(python3 -m zipfile -e {remote_zip_path} . 2>/dev/null || python -m zipfile -e {remote_zip_path} .); '
                 'docker stop {odoo_container} || true; '
                 'docker exec -e PGPASSWORD=odoo {psql_container} psql -U odoo -d postgres -c '
                 '"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = \'{db_name_sql}\'"; '
@@ -491,21 +520,19 @@ class PServer(models.Model):
                 'docker exec -e PGPASSWORD=odoo {psql_container} createdb -U odoo {db_name_shell}; '
                 'cat {remote_workdir}/dump.sql | docker exec -i -e PGPASSWORD=odoo {psql_container} psql -U odoo -d {db_name_shell} -q; '
                 'rm -rf {filestore_path}; mkdir -p {filestore_path}; '
-                'if [ -d {remote_workdir}/filestore ]; then cp -a {remote_workdir}/filestore/. {filestore_path}/; fi; '
+                'if [ -d {remote_filestore_dir} ]; then cp -a {remote_filestore_dir}/. {filestore_path}/; fi; '
                 'docker start {odoo_container}'
             ).format(
                 remote_workdir=shlex.quote(remote_workdir),
-                remote_zip_path=shlex.quote(remote_zip_path),
+                remote_filestore_dir=shlex.quote(remote_filestore_dir),
                 odoo_container=shlex.quote(odoo_container),
                 psql_container=shlex.quote(psql_container),
                 db_name_sql=db_name,
                 db_name_shell=shlex.quote(db_name),
                 filestore_path=shlex.quote(filestore_path),
             )
-            stdin, stdout, stderr = ssh.exec_command(cmd)
-            exit_status = stdout.channel.recv_exit_status()
-            error = stderr.read().decode().strip()
-            if exit_status:
+            status, _out, error = run(restore_cmd)
+            if status:
                 try:
                     self._exec_cmd('docker start %s' % shlex.quote(odoo_container), ssh)
                 except Exception:
@@ -514,6 +541,13 @@ class PServer(models.Model):
                     _("Database restore error for %s: %s")
                     % (instance.display_name, error or _("Unknown Error."))
                 )
+
+            if filestore_file_count == 0:
+                return _(
+                    "This backup did not contain any filestore files, so attachments/images "
+                    "(including the company logo) were not restored. The database was restored normally."
+                )
+            return False
         finally:
             if ssh:
                 try:

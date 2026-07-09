@@ -48,9 +48,12 @@ class OdooInstanceBackup(models.Model):
                         "You have started restore to %s before %s minute(s), it's on the way. Please wait..."
                     ) % (rec.restore_instance_id.display_name or '', minutes)
             elif rec.restore_state == 'done':
-                rec.restore_status_message = _(
+                message = _(
                     "Your backup was restored to %s. It's done."
                 ) % (rec.restore_instance_id.display_name or '')
+                if rec.restore_error_message:
+                    message = "%s %s" % (message, rec.restore_error_message)
+                rec.restore_status_message = message
             elif rec.restore_state == 'failed':
                 rec.restore_status_message = _("Restore failed: %s") % (rec.restore_error_message or '')
             else:
@@ -101,10 +104,11 @@ class OdooInstanceBackup(models.Model):
                 backup = env['saas.odoo.instance.backup'].sudo().browse(backup_id)
                 target = env['saas.odoo.instance'].sudo().browse(instance_id)
                 try:
-                    target.pserver_id._restore_odoo_instance_backup(target, backup)
+                    warning = target.pserver_id._restore_odoo_instance_backup(target, backup)
                     backup.write({
                         'restore_state': 'done',
                         'restore_end_datetime': fields.Datetime.now(),
+                        'restore_error_message': warning or False,
                     })
                 except Exception as e:
                     backup.write({

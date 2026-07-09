@@ -45,7 +45,7 @@
                         </h1>
                     </div>
                     <div class="alert alert-info" role="alert" invisible="restore_state != 'running'">
-                        <field name="restore_status_message" nolabel="1"/>
+                        <field name="restore_status_message" nolabel="1" widget="saas_backup_restore_progress"/>
                     </div>
                     <div class="alert alert-success" role="alert" invisible="restore_state != 'done'">
                         <field name="restore_status_message" nolabel="1"/>

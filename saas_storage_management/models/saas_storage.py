@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import api, models, fields
 from odoo.exceptions import ValidationError, UserError
 import os
 import logging
@@ -16,26 +16,30 @@ class SaasOdooInstance(models.Model):
         help='Maximum storage allowed for this instance in GB. Leave empty or 0 for unlimited. Default: 500MB (0.5GB)'
     )
     
+    # Stored (not recomputed on every read): filesystem scanning is expensive, so the
+    # value only changes when the hourly cron (check_storage) explicitly writes it -
+    # portal/backend reads hit the DB column directly instead of walking the filesystem
+    # on every page view.
     storage_used_gb = fields.Float(
         string='Storage Used (GB)',
         compute='_compute_storage_used',
-        store=False
+        store=True
     )
-    
+
     storage_percentage = fields.Float(
         string='Storage Usage %',
         compute='_compute_storage_percentage',
-        store=False
+        store=True
     )
-    
+
     storage_status = fields.Selection([
         ('ok', 'OK'),
         ('warning', 'Warning'),
         ('critical', 'Critical'),
         ('full', 'Full'),
         ('unlimited', 'Unlimited'),
-    ], string='Storage Status', compute='_compute_storage_status', store=False)
-    
+    ], string='Storage Status', compute='_compute_storage_status', store=True)
+
     storage_is_unlimited = fields.Boolean(
         string='Unlimited Storage',
         compute='_compute_storage_is_unlimited',
@@ -43,7 +47,8 @@ class SaasOdooInstance(models.Model):
     )
     
     storage_last_check = fields.Datetime(string='Last Check')
-    storage_notification_sent = fields.Boolean(default=False)
+    storage_notification_sent = fields.Boolean(default=False, help='Warning email (80%+) already sent for the current fill cycle.')
+    storage_full_action_taken = fields.Boolean(default=False, help='Instance already auto-stopped and notified for the current full (100%+) cycle.')
     
     storage_upgrade_requested = fields.Boolean(default=False)
     storage_upgrade_requested_gb = fields.Float()
@@ -54,7 +59,8 @@ class SaasOdooInstance(models.Model):
     storage_history_ids = fields.One2many('saas.storage.history', 'instance_id', string='Storage History', readonly=True)
 
     def _compute_storage_used(self):
-        """Compute storage used for each instance"""
+        """Compute storage used - only runs once per record (no depends), the hourly
+        check_storage() cron is what keeps this field's stored value up to date."""
         for record in self:
             try:
                 record.storage_used_gb = round(self._calculate_filestore_size(record), 2)
@@ -62,6 +68,7 @@ class SaasOdooInstance(models.Model):
                 _logger.error(f"[STORAGE] Error computing storage for {record.name}: {str(e)}")
                 record.storage_used_gb = 0.0
 
+    @api.depends('storage_used_gb', 'storage_limit_gb', 'storage_is_unlimited')
     def _compute_storage_percentage(self):
         """Compute storage percentage"""
         for record in self:
@@ -70,11 +77,13 @@ class SaasOdooInstance(models.Model):
             else:
                 record.storage_percentage = round((record.storage_used_gb / record.storage_limit_gb) * 100, 1)
 
+    @api.depends('storage_limit_gb')
     def _compute_storage_is_unlimited(self):
         """Check if storage is unlimited"""
         for record in self:
             record.storage_is_unlimited = not record.storage_limit_gb or record.storage_limit_gb == 0
 
+    @api.depends('storage_percentage', 'storage_is_unlimited')
     def _compute_storage_status(self):
         """Compute storage status"""
         for record in self:
@@ -151,47 +160,88 @@ class SaasOdooInstance(models.Model):
             return 0.0
 
     def check_storage(self):
-        """Check storage and create history record"""
+        """Check storage, create history record, notify and auto-stop as thresholds are crossed"""
         for record in self:
             try:
-                # Calculate storage
+                # Calculate storage - writing storage_used_gb cascades (via @api.depends) to
+                # recompute + store storage_percentage and storage_status automatically.
                 size_gb = self._calculate_filestore_size(record)
-                record.storage_used_gb = size_gb
-                
-                # Calculate percentage
-                if record.storage_is_unlimited or not record.storage_limit_gb or record.storage_limit_gb == 0:
-                    percentage = 0
-                else:
-                    percentage = (size_gb / record.storage_limit_gb) * 100
-                
-                # Get status
-                if record.storage_is_unlimited:
-                    status = 'unlimited'
-                elif percentage >= 100:
-                    status = 'full'
-                elif percentage >= 90:
-                    status = 'critical'
-                elif percentage >= 80:
-                    status = 'warning'
-                else:
-                    status = 'ok'
-                
-                # Update last check
+                record.storage_used_gb = round(size_gb, 2)
                 record.storage_last_check = fields.Datetime.now()
-                
+
+                status = record.storage_status
+
                 # Create history record
                 self.env['saas.storage.history'].create({
                     'instance_id': record.id,
-                    'storage_used_gb': round(size_gb, 2),
+                    'storage_used_gb': record.storage_used_gb,
                     'storage_limit_gb': record.storage_limit_gb,
-                    'storage_percentage': round(percentage, 2),
+                    'storage_percentage': record.storage_percentage,
                     'storage_status': status,
                 })
-                
-                _logger.info(f"[STORAGE] Updated instance {record.name}: {size_gb:.2f}GB ({percentage:.1f}%)")
-                
+
+                _logger.info(f"[STORAGE] Updated instance {record.name}: {record.storage_used_gb:.2f}GB ({record.storage_percentage:.1f}%)")
+
+                record._handle_storage_thresholds(status)
+
             except Exception as e:
                 _logger.error(f"[STORAGE] Error checking storage for {record.name}: {str(e)}")
+
+    def _handle_storage_thresholds(self, status):
+        """Send warning/full notifications and auto-stop the instance once storage is full.
+
+        Uses storage_notification_sent / storage_full_action_taken as one-shot flags so the
+        hourly cron doesn't resend emails or re-trigger action_stop every run - they reset
+        once usage drops back below the threshold (e.g. after cleanup or a limit increase).
+        """
+        self.ensure_one()
+
+        if status in ('warning', 'critical'):
+            if not self.storage_notification_sent:
+                self._send_storage_warning_email()
+                self.storage_notification_sent = True
+        elif status in ('ok', 'unlimited'):
+            if self.storage_notification_sent:
+                self.storage_notification_sent = False
+            if self.storage_full_action_taken:
+                self.storage_full_action_taken = False
+
+        if status == 'full':
+            if not self.storage_full_action_taken:
+                self.storage_notification_sent = True
+                self._send_storage_full_email()
+                if self.operation_state == 'run':
+                    try:
+                        self.action_stop()
+                        _logger.info(f"[STORAGE] Instance {self.name} auto-stopped: storage full")
+                    except Exception as e:
+                        _logger.error(f"[STORAGE] Error auto-stopping {self.name}: {str(e)}")
+                self.storage_full_action_taken = True
+        elif self.storage_full_action_taken:
+            # Usage dropped back under 100% (still >= 80%, kept in 'warning'/'critical')
+            self.storage_full_action_taken = False
+
+    def _send_storage_warning_email(self):
+        """Send the 80%+ storage warning email using the storage_warning_mail_template"""
+        self.ensure_one()
+        if not self.partner_id.email:
+            _logger.warning(f"[STORAGE] No email for customer {self.partner_id.name}, skipping warning email")
+            return
+        template = self.env.ref('saas_storage_management.storage_warning_mail_template', raise_if_not_found=False)
+        if template:
+            template.sudo().send_mail(self.id, force_send=True)
+            _logger.info(f"[STORAGE] Warning email sent for {self.name} ({self.storage_percentage:.1f}%)")
+
+    def _send_storage_full_email(self):
+        """Send the 100% storage-full / instance-stopped email using the storage_full_mail_template"""
+        self.ensure_one()
+        if not self.partner_id.email:
+            _logger.warning(f"[STORAGE] No email for customer {self.partner_id.name}, skipping full-storage email")
+            return
+        template = self.env.ref('saas_storage_management.storage_full_mail_template', raise_if_not_found=False)
+        if template:
+            template.sudo().send_mail(self.id, force_send=True)
+            _logger.info(f"[STORAGE] Full-storage email sent for {self.name}")
 
     def request_upgrade(self, new_limit_gb):
         """Client requests storage upgrade - returns status dict"""

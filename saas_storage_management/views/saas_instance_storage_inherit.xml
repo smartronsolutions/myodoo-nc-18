@@ -20,6 +20,8 @@
                             <field name="storage_percentage" readonly="1"/>
                             <field name="storage_status" readonly="1"/>
                             <field name="storage_last_check" readonly="1"/>
+                            <field name="storage_notification_sent" readonly="1"/>
+                            <field name="storage_full_action_taken" readonly="1"/>
                         </group>
                     </group>
                     

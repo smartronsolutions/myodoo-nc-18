@@ -7,6 +7,7 @@
     'depends': ['s_odoo_saas_master', 'mail', 'website'],
     'data': [
         'security/ir_model_access.xml',
+        'data/storage_mail_template_data.xml',
         'views/saas_instance_storage_inherit.xml',
         'views/storage_views.xml',
         'views/portal_storage_views.xml',

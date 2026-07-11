@@ -211,13 +211,9 @@ body { overflow-x:hidden; }
       <div class="mo_account_drop" id="mo_account_drop">
 
         <t t-if="not request.env.user._is_public()">
-          <a href="/my/home">
+          <a href="/my">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             Mon Compte
-          </a>
-          <a href="/web#action=mail.action_discuss">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Messages
           </a>
           <div class="mo_drop_sep"/>
           <a href="/web/session/logout">
@@ -276,8 +272,7 @@ body { overflow-x:hidden; }
   </span>
   <ul>
     <t t-if="not request.env.user._is_public()">
-      <li><a href="/my/home">&#128100; Mon Compte</a></li>
-      <li><a href="/web#action=mail.action_discuss">&#9993; Messages</a></li>
+      <li><a href="/my">&#128100; Mon Compte</a></li>
       <li><a href="/web/session/logout">&#128682; Déconnexion</a></li>
     </t>
     <t t-if="request.env.user._is_public()">

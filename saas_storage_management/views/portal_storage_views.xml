@@ -104,15 +104,22 @@
                     .then(function(data){
                         var result = data.result || data;
                         if (result && result.status === 'success') {
-                            var modal = window.bootstrap.Modal.getInstance(modalEl);
-                            if (modal) { modal.hide(); }
+                            try {
+                                if (window.bootstrap && window.bootstrap.Modal) {
+                                    var modal = window.bootstrap.Modal.getInstance(modalEl);
+                                    if (modal) { modal.hide(); }
+                                }
+                            } catch (e) {
+                                // Non-fatal: the page reload below will close the modal anyway.
+                            }
                             showMessage('success', result.message);
                             setTimeout(function(){ location.reload(); }, 1500);
                         } else {
                             setError((result && result.message) || 'Unknown error, please try again.');
                         }
                     })
-                    .catch(function(){
+                    .catch(function(err){
+                        console.error('Storage upgrade request failed', err);
                         setError('An error occurred. Please try again.');
                     })
                     .finally(function(){

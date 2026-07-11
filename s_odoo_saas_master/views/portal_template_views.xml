@@ -173,7 +173,7 @@
                         <ul class="list-group list-group-flush flex-wrap flex-row flex-lg-column">
                             <li class="list-group-item flex-grow-1">
                                 <div class="mx-1 mb8">
-                                    <a t-if="instance.state == 'deploy'" class="btn btn-primary w-100" t-attf-href="{{ instance.url }}" target="_blank">
+                                    <a t-if="instance.state == 'deploy'" class="btn btn-primary" t-attf-href="{{ instance.url }}" target="_blank">
                                         <i class="fa fa-fw fa-plug"/> Connect
                                     </a>
                                 </div>
@@ -211,7 +211,7 @@
                         	</div>
                         	<div class="mb-3">
 							  <input type="text" id="domain_name" class="form-control mb-2" placeholder="your-domain.com" aria-label="Your domain name" />
-							  <a class="btn btn-primary w-100 o_instance_add_custom_domain" t-att-data-instance_id="instance.id" href="#" title="Add your domain name"><i class="fa fa-fw fa-hand-o-down"/> Add</a>
+							  <a class="btn btn-primary o_instance_add_custom_domain" t-att-data-instance_id="instance.id" href="#" title="Add your domain name"><i class="fa fa-fw fa-hand-o-down"/> Add</a>
 							</div>
                         </div>
                         <div class="px-3 pt-2 border-top border-left" id="domain_list">

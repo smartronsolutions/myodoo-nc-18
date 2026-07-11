@@ -1,5 +1,6 @@
-from odoo import http
+from odoo import http, fields
 from odoo.http import request
+from datetime import timedelta
 import json
 import logging
 
@@ -7,7 +8,14 @@ _logger = logging.getLogger(__name__)
 
 
 class StoragePortal(http.Controller):
-    
+
+    def _get_own_instance(self, instance_id):
+        """Portal user's own instance, or an empty recordset if not found/not theirs"""
+        return request.env['saas.odoo.instance'].search([
+            ('id', '=', instance_id),
+            ('partner_id', '=', request.env.user.partner_id.id),
+        ], limit=1)
+
     @http.route('/my/storage', auth='user', website=True)
     def storage_dashboard(self, **kw):
         """Client storage dashboard"""
@@ -36,6 +44,31 @@ class StoragePortal(http.Controller):
             'page_name': 'storage',
         })
     
+    @http.route('/my/storage/<int:instance_id>', auth='user', website=True)
+    def storage_instance_detail(self, instance_id, **kw):
+        """Per-instance storage page: current usage + last 7 days report + request upgrade"""
+        instance = self._get_own_instance(instance_id)
+        if not instance:
+            return request.redirect('/my/storage')
+
+        since = fields.Datetime.now() - timedelta(days=7)
+        history = request.env['saas.storage.history'].search([
+            ('instance_id', '=', instance.id),
+            ('check_date', '>=', since),
+        ], order='check_date asc')
+
+        # Keep only the last check of each day (most recent overwrites earlier same-day ones)
+        daily = {}
+        for h in history:
+            daily[h.check_date.date()] = h
+        daily_history = sorted(daily.values(), key=lambda h: h.check_date, reverse=True)
+
+        return request.render('saas_storage_management.portal_storage_instance_detail', {
+            'instance': instance,
+            'daily_history': daily_history,
+            'page_name': 'storage',
+        })
+
     @http.route('/my/storage/request-upgrade', auth='user', website=True, type='json')
     def request_upgrade(self, **kw):
         """Request storage upgrade"""
@@ -51,14 +84,11 @@ class StoragePortal(http.Controller):
             if not instance_id or not new_limit_gb:
                 return {'status': 'error', 'message': 'Missing instance_id or new_limit_gb'}
             
-            instance = request.env['saas.odoo.instance'].browse(int(instance_id))
-            
-            if not instance.exists():
+            instance = self._get_own_instance(int(instance_id))
+
+            if not instance:
                 return {'status': 'error', 'message': 'Instance not found'}
-            
-            if instance.partner_id.id != request.env.user.partner_id.id:
-                return {'status': 'error', 'message': 'Unauthorized'}
-            
+
             # Call model method and get status dict
             result = instance.request_upgrade(float(new_limit_gb))
             

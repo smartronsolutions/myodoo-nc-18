@@ -388,6 +388,14 @@ class SaasOdooInstance(models.Model):
 
                 _logger.info(f"[STORAGE] Upgrade approved for {record.name}: {old_limit}GB → {new_limit}GB")
 
+                # If the instance was auto-stopped for being full, resume it now that there's room
+                if record.state == 'deploy' and record.operation_state == 'stop':
+                    try:
+                        record.action_start()
+                        _logger.info(f"[STORAGE] Instance {record.name} restarted after storage upgrade approval")
+                    except Exception as e:
+                        _logger.error(f"[STORAGE] Error restarting {record.name} after upgrade approval: {str(e)}")
+
                 # Send approval email to customer (partner_id.email from this saas.odoo.instance record)
                 record._send_storage_upgrade_approved_email()
 

@@ -344,20 +344,25 @@ class SaasOdooInstance(models.Model):
             try:
                 if not record.storage_upgrade_requested:
                     raise UserError('No upgrade request for this instance')
-                
+
                 old_limit = record.storage_limit_gb
                 new_limit = record.storage_upgrade_requested_gb
-                
-                # Update storage limit
+
+                # Update storage limit (cascades: storage_percentage/storage_status recompute automatically)
                 record.storage_limit_gb = new_limit
                 record.storage_upgrade_requested = False
                 record.storage_upgrade_requested_gb = 0
-                
+
+                # New limit should clear a previous full/warning cycle - the next cron run
+                # will re-raise them if usage is still high relative to the new limit.
+                record.storage_notification_sent = False
+                record.storage_full_action_taken = False
+
                 _logger.info(f"[STORAGE] Upgrade approved for {record.name}: {old_limit}GB → {new_limit}GB")
-                
-                # Send approval email to customer
-                self._send_approval_email(record, old_limit, new_limit)
-                
+
+                # Send approval email to customer (partner_id.email from this saas.odoo.instance record)
+                record._send_storage_upgrade_approved_email()
+
             except Exception as e:
                 _logger.error(f"[STORAGE] Error approving upgrade for {record.name}: {str(e)}")
                 raise
@@ -384,40 +389,19 @@ class SaasOdooInstance(models.Model):
                 _logger.error(f"[STORAGE] Error rejecting upgrade for {record.name}: {str(e)}")
                 raise
 
-    def _send_approval_email(self, instance, old_limit, new_limit):
-        """Send approval email to customer"""
-        try:
-            customer_email = instance.partner_id.email
-            if not customer_email:
-                _logger.warning(f"[STORAGE] No email for customer {instance.partner_id.name}")
-                return
-            
-            subject = f"Storage Upgrade Approved - {instance.name}"
-            body = f"""
-            <p>Your storage upgrade request has been approved!</p>
-            <ul>
-                <li><strong>Instance:</strong> {instance.name}</li>
-                <li><strong>Previous Limit:</strong> {old_limit} GB</li>
-                <li><strong>New Limit:</strong> {new_limit} GB</li>
-                <li><strong>Approved Date:</strong> {fields.Datetime.now()}</li>
-            </ul>
-            <p>Your storage limit has been updated. You can now use up to {new_limit} GB.</p>
-            """
-            
-            mail_values = {
-                'subject': subject,
-                'body_html': body,
-                'email_from': self.env.user.email,
-                'email_to': customer_email,
-            }
-            
-            mail = self.env['mail.mail'].create(mail_values)
-            mail.send()
-            
-            _logger.info(f"[STORAGE] Approval email sent to {customer_email}")
-            
-        except Exception as e:
-            _logger.error(f"[STORAGE] Error sending approval email: {str(e)}")
+    def _send_storage_upgrade_approved_email(self):
+        """Send the new-storage-limit approval email using storage_upgrade_approved_mail_template.
+
+        email_to is resolved from partner_id.email on this saas.odoo.instance record.
+        """
+        self.ensure_one()
+        if not self.partner_id.email:
+            _logger.warning(f"[STORAGE] No email for customer {self.partner_id.name}, skipping approval email")
+            return
+        template = self.env.ref('saas_storage_management.storage_upgrade_approved_mail_template', raise_if_not_found=False)
+        if template:
+            template.sudo().send_mail(self.id, force_send=True)
+            _logger.info(f"[STORAGE] Approval email sent for {self.name} (new limit: {self.storage_limit_gb} GB)")
 
     def _send_rejection_email(self, instance, requested_limit):
         """Send rejection email to customer"""

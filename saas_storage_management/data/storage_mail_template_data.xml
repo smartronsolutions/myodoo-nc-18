@@ -37,6 +37,35 @@
         <field name="auto_delete" eval="True"/>
     </record>
 
+    <record id="storage_upgrade_approved_mail_template" model="mail.template">
+        <field name="name">Storage Upgrade Approved</field>
+        <field name="model_id" ref="s_odoo_saas_master.model_saas_odoo_instance"/>
+        <field name="subject">✅ Storage Upgrade Approved - {{ object.name }} now has {{ object.storage_limit_gb }} GB</field>
+        <field name="email_from">{{ (object.company_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="body_html" type="html">
+            <div>
+                <div style="text-align:center; font-size:18px; color:#5cb85c;"><strong>STORAGE UPGRADE APPROVED</strong></div>
+                <hr width="100%" style="background-color:#5cb85c; border:none; height:3px; margin: 16px 0px 16px 0px;"/>
+            </div>
+            <div>
+                <div>Dear <span t-out="object.partner_id.name or ''"/>,</div>
+                <br/>
+                <div>
+                    Your storage upgrade request for instance <strong><span t-out="object.name or ''"/></strong> has been approved.
+                    Your new storage limit is <strong style="color:#5cb85c;"><span t-out="object.storage_limit_gb"/> GB</strong>.
+                </div>
+                <br/>
+                <div>If your instance was stopped due to full storage, please contact support to have it restarted, or check your <a href="/my/storage">Storage Dashboard</a>.</div>
+            </div>
+            <br/>
+            <div>
+                <div>Thank you for using our services. If you have any questions, please contact our support team.</div>
+            </div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
     <record id="storage_full_mail_template" model="mail.template">
         <field name="name">Storage Full - Instance Stopped</field>
         <field name="model_id" ref="s_odoo_saas_master.model_saas_odoo_instance"/>

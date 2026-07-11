@@ -6,7 +6,7 @@
     <template id="portal_instance_page_inherit_file_manager" inherit_id="s_odoo_saas_master.portal_instance_page">
         <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
             <div t-if="instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
-                <a class="btn btn-block btn-info o_instance_file_manager"
+                <a class="btn btn-info w-100 o_instance_file_manager"
                    t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager"
                    title="File Manager" target="_blank">
                     <i class="fa fa-fw fa-folder-open"/> File Manager

@@ -215,12 +215,12 @@
             </div>
             <div class="openerp_enterprise_pricing_is_not_free_trial">
               <div class="d-grid gap-2 openerp_enterprise_pricing_form_button">
-                <a class="btn btn-primary btn-block openerp_enterprise_pricing_trial" href="#">TRY NOW
+                <a class="btn btn-primary openerp_enterprise_pricing_trial" href="#">TRY NOW
                     <br class="d-none d-md-inline-block"/>
                     <span class="d-md-none px-1">-</span>
                     <small class="text-white-75 fw_bold">15 days Free trial</small>
                 </a>
-                <a class="btn btn-success btn-block openerp_enterprise_pricing_buy_now" href="#">BUY NOW</a>
+                <a class="btn btn-success openerp_enterprise_pricing_buy_now" href="#">BUY NOW</a>
                 <div class="mt16 alert alert-danger openerp_enterprise_pricing_error_no_apps d-none"> Please select at least one App. </div>
               </div>
             </div>

@@ -73,7 +73,7 @@
              to see storage usage and request an increase. -->
         <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
             <div t-if="instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
-                <a class="btn btn-block btn-warning o_instance_storage_info"
+                <a class="btn btn-warning w-100 o_instance_storage_info"
                    t-attf-href="/my/storage/{{ instance.id }}"
                    title="View Storage" target="_blank">
                     <i class="fa fa-fw fa-database"/> Storage

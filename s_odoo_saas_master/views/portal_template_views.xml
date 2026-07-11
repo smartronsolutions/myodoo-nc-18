@@ -173,19 +173,19 @@
                         <ul class="list-group list-group-flush flex-wrap flex-row flex-lg-column">
                             <li class="list-group-item flex-grow-1">
                                 <div class="mx-1 mb8">
-                                    <a t-if="instance.state == 'deploy'" class="btn btn-primary btn-block" t-attf-href="{{ instance.url }}" target="_blank">
+                                    <a t-if="instance.state == 'deploy'" class="btn btn-primary w-100" t-attf-href="{{ instance.url }}" target="_blank">
                                         <i class="fa fa-fw fa-plug"/> Connect
                                     </a>
                                 </div>
                                 <div class="btn-toolbar flex-sm-nowrap">
-                                    <div class="btn-group flex-grow-1 mx-1">
-                                        <a class="btn btn-block btn-success o_instance_start" t-att-data-instance_id="instance.id" href="#" title="Start"><i class="fa fa-fw fa-play"/> Start</a>
+                                    <div t-if="instance.operation_state != 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1">
+                                        <a class="btn btn-success w-100 o_instance_start" t-att-data-instance_id="instance.id" href="#" title="Start"><i class="fa fa-fw fa-play"/> Start</a>
                                     </div>
                                     <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1">
-                                        <a class="btn btn-block btn-danger o_instance_stop" t-att-data-instance_id="instance.id" href="#" title="Stop"><i class="fa fa-fw fa-stop"/> Stop</a>
+                                        <a class="btn btn-danger w-100 o_instance_stop" t-att-data-instance_id="instance.id" href="#" title="Stop"><i class="fa fa-fw fa-stop"/> Stop</a>
                                     </div>
                                     <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1">
-                                        <a class="btn btn-block btn-warning o_instance_restart" t-att-data-instance_id="instance.id" href="#" title="Restart"><i class="fa fa-fw fa-refresh"/> Restart</a>
+                                        <a class="btn btn-warning w-100 o_instance_restart" t-att-data-instance_id="instance.id" href="#" title="Restart"><i class="fa fa-fw fa-refresh"/> Restart</a>
                                     </div>
                                 </div>
                             </li>
@@ -211,7 +211,7 @@
                         	</div>
                         	<div class="input-group mb-3">							  
 							  <input type="text" id="domain_name" class="form-control" placeholder="your-domain.com" aria-label="Your domain name" />
-							  <a class="btn btn-primary btn-block o_instance_add_custom_domain" t-att-data-instance_id="instance.id" href="#" title="Add your domain name"><i class="fa fa-fw fa-hand-o-down"/> Add</a>
+							  <a class="btn btn-primary w-100 o_instance_add_custom_domain" t-att-data-instance_id="instance.id" href="#" title="Add your domain name"><i class="fa fa-fw fa-hand-o-down"/> Add</a>
 							</div>
                         </div>
                         <div class="px-3 pt-2 border-top border-left" id="domain_list">

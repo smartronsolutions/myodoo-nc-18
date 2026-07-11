@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit portal instance page to add storage information -->
+    
+    <!-- Add Storage Info to Portal Instance Sidebar -->
+    <template id="portal_instance_page_storage_inherit" inherit_id="s_odoo_saas_master.portal_instance_page">
+        <xpath expr="//tr[contains(@class, 'fw-bold')]" position="after">
+            <!-- Storage Status Rows -->
+            <t t-if="instance.storage_is_unlimited">
+                <tr>
+                    <td>Storage</td>
+                    <td>
+                        <span class="badge bg-info"><i class="fa fa-infinity"/> Unlimited</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Used</td>
+                    <td>
+                        <b><t t-esc="instance.storage_used_gb"/> GB</b>
+                    </td>
+                </tr>
+            </t>
+            <t t-else="">
+                <tr>
+                    <td>Storage Used</td>
+                    <td>
+                        <t t-set="storage_used" t-value="instance.storage_used_gb"/>
+                        <t t-set="storage_limit" t-value="instance.storage_limit_gb"/>
+                        <t t-set="storage_pct" t-value="instance.storage_percentage"/>
+                        <b><t t-esc="storage_used"/> GB / <t t-esc="storage_limit"/> GB</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Usage</td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <t t-set="bar_color" t-value="'bg-success' if storage_pct &lt; 80 else 'bg-warning' if storage_pct &lt; 90 else 'bg-danger'"/>
+                            <div class="progress-bar" 
+                                 t-att-style="'width: ' + str(min(storage_pct, 100)) + '%'"
+                                 t-att-class="bar_color">
+                                <t t-esc="storage_pct"/>%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </t>
+            
+            <!-- Storage Status Row -->
+            <tr>
+                <td>Status</td>
+                <td>
+                    <t t-if="instance.storage_status == 'ok'">
+                        <span class="badge rounded-pill text-bg-success"><i class="fa fa-fw fa-check"/> OK</span>
+                    </t>
+                    <t t-elif="instance.storage_status == 'warning'">
+                        <span class="badge rounded-pill text-bg-warning"><i class="fa fa-fw fa-exclamation"/> Warning</span>
+                    </t>
+                    <t t-elif="instance.storage_status == 'critical'">
+                        <span class="badge rounded-pill text-bg-danger"><i class="fa fa-fw fa-exclamation-triangle"/> Critical</span>
+                    </t>
+                    <t t-elif="instance.storage_status == 'full'">
+                        <span class="badge rounded-pill text-bg-dark"><i class="fa fa-fw fa-times"/> Full</span>
+                    </t>
+                    <t t-elif="instance.storage_status == 'unlimited'">
+                        <span class="badge rounded-pill text-bg-info"><i class="fa fa-fw fa-infinity"/> Unlimited</span>
+                    </t>
+                </td>
+            </tr>
+        </xpath>
+        
+        <!-- Add Storage Button to Toolbar -->
+        <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
+            <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
+                <a class="btn btn-block btn-warning o_instance_storage_info" 
+                   t-attf-href="/my/storage" 
+                   title="View Storage" target="_blank">
+                    <i class="fa fa-fw fa-database"/> Storage
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,199 @@
+/* SaaS File Manager - Styles */
+
+.o_instance_file_manager {
+    transition: all 0.3s ease;
+}
+
+.o_instance_file_manager:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.file-manager-container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.file-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.file-manager-header h4 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.file-list-table {
+    background-color: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.file-list-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.file-list-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s ease;
+}
+
+.file-list-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.file-list-table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.file-icon {
+    font-size: 18px;
+    margin-right: 8px;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #0066cc;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.file-name:hover {
+    text-decoration: underline;
+}
+
+.file-size {
+    color: #666;
+    font-size: 14px;
+}
+
+.file-date {
+    color: #999;
+    font-size: 13px;
+}
+
+.file-actions {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.file-action-btn {
+    padding: 4px 8px;
+    font-size: 13px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.file-action-btn:hover {
+    transform: scale(1.1);
+}
+
+.btn-download {
+    color: #0066cc;
+    border: 1px solid #0066cc;
+}
+
+.btn-download:hover {
+    background-color: #0066cc;
+    color: white;
+}
+
+.btn-delete {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.btn-delete:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.empty-folder {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.empty-folder i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.upload-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.upload-modal .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.upload-modal .form-control-file {
+    padding: 10px;
+    border: 2px dashed #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-modal .form-control-file:hover {
+    border-color: #0066cc;
+    background-color: #f0f7ff;
+}
+
+.breadcrumb-path {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.breadcrumb-path i {
+    margin-right: 8px;
+    color: #ffc107;
+}
+
+.folder-item {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.folder-item:hover {
+    color: #ff9800;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .file-list-table {
+        font-size: 13px;
+    }
+    
+    .file-list-table td {
+        padding: 8px 10px;
+    }
+    
+    .file-actions {
+        gap: 3px;
+    }
+    
+    .file-action-btn {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+}

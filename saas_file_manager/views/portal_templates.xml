@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inject File Manager button into existing portal instance page -->
+    <template id="portal_instance_page_inherit_file_manager" inherit_id="s_odoo_saas_master.portal_instance_page">
+        <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
+            <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
+                <a class="btn btn-block btn-info o_instance_file_manager" 
+                   t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager" 
+                   title="File Manager" target="_blank">
+                    <i class="fa fa-fw fa-folder-open"/> File Manager
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Main File Manager UI Template -->
+    <template id="portal_file_manager" name="SaaS File Manager">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">File Manager - <t t-esc="instance.name"/></t>
+            </t>
+            
+            <div class="row mt16">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <i class="fa fa-folder-open-o text-warning me-2"/>
+                                <span>/home/<t t-esc="instance.technical_name"/>/<t t-esc="current_path"/></span>
+                            </h4>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                    <i class="fa fa-upload"/> Upload File
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 50px;"></th>
+                                        <th>Name</th>
+                                        <th>Size</th>
+                                        <th>Last Modified</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Up Directory Link (Back Button) -->
+                                    <tr t-if="current_path">
+                                        <td class="text-center"><i class="fa fa-level-up text-secondary"/></td>
+                                        <td colspan="4">
+                                            <a t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager/{{ parent_path }}" class="font-weight-bold text-dark">
+                                                <i class="fa fa-arrow-left me-2"/> Go Back (Parent Directory)
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Folders -->
+                                    <t t-foreach="folders" t-as="folder">
+                                        <tr>
+                                            <td class="text-center"><i class="fa fa-folder text-warning"/></td>
+                                            <td>
+                                                <a t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager/{{ folder['path'] }}" class="font-weight-bold text-dark">
+                                                    <t t-esc="folder['name']"/>
+                                                </a>
+                                            </td>
+                                            <td>-</td>
+                                            <td><t t-esc="datetime.datetime.fromtimestamp(folder['mtime']).strftime('%Y-%m-%d %H:%M:%S')"/></td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager/{{ folder['path'] }}" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fa fa-folder-open"/> Open
+                                                    </a>
+                                                    <!-- Delete Folder Button -->
+                                                    <form t-attf-action="/my/saas/odoo-instance/{{ instance.id }}/file-manager/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this folder?\n\n{{ folder[&quot;name&quot;] }}');">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                        <input type="hidden" name="file_path" t-att-value="folder['path']"/>
+                                                        <input type="hidden" name="current_path" t-att-value="current_path"/>
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger o_folder_delete_btn" title="Delete Folder">
+                                                            <i class="fa fa-trash"/> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    
+                                    <!-- Files -->
+                                    <t t-foreach="files" t-as="file">
+                                        <tr>
+                                            <td class="text-center">
+                                                <i t-attf-class="fa {{ 'fa-file-code-o text-primary' if file['is_editable'] else 'fa-file-o text-secondary' }}"/>
+                                            </td>
+                                            <td><t t-esc="file['name']"/></td>
+                                            <td>
+                                                <t t-if="file['size'] &lt; 1024">
+                                                    <t t-esc="file['size']"/> B
+                                                </t>
+                                                <t t-elif="file['size'] &lt; 1048576">
+                                                    <t t-esc="round(file['size'] / 1024.0, 2)"/> KB
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="round(file['size'] / 1048576.0, 2)"/> MB
+                                                </t>
+                                            </td>
+                                            <td><t t-esc="datetime.datetime.fromtimestamp(file['mtime']).strftime('%Y-%m-%d %H:%M:%S')"/></td>
+                                            <td class="text-end">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager/download?file_path={{ file['path'] }}" class="btn btn-sm btn-outline-primary" title="Download">
+                                                        <i class="fa fa-download"/>
+                                                    </a>
+                                                    <!-- Edit button for editable files -->
+                                                    <a t-if="file['is_editable']" t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager/editor?file_path={{ file['path'] }}&amp;current_path={{ current_path }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                        <i class="fa fa-pencil"/>
+                                                    </a>
+                                                    <!-- Delete File Button -->
+                                                    <form t-attf-action="/my/saas/odoo-instance/{{ instance.id }}/file-manager/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this file?\n\n{{ file[&quot;name&quot;] }}');">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                        <input type="hidden" name="file_path" t-att-value="file['path']"/>
+                                                        <input type="hidden" name="current_path" t-att-value="current_path"/>
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger o_file_delete_btn" title="Delete File">
+                                                            <i class="fa fa-trash"/>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    
+                                    <tr t-if="not folders and not files">
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fa fa-folder-open-o fa-3x mb-3 d-block"/>
+                                            This folder is empty.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upload Modal -->
+            <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form id="uploadForm" t-attf-action="/my/saas/odoo-instance/{{ instance.id }}/file-manager/upload" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="current_path" id="uploadCurrentPath" t-att-value="current_path"/>
+                            <input type="hidden" name="instance_id" t-att-value="instance.id"/>
+                            
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="uploadModalLabel">Upload File</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="ufile" class="form-label">Select File</label>
+                                    <input type="file" class="form-control" id="ufile" name="ufile" required="required"/>
+                                </div>
+                                <p class="text-muted small mt-2">
+                                    File will be uploaded to: <strong><span id="uploadPath"><t t-esc="current_path if current_path else 'Root Directory'"/></span></strong>
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Upload</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rename Modal -->
+            <div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <form t-attf-action="/my/saas/odoo-instance/{{ instance.id }}/file-manager/rename" method="POST">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="file_path" id="renameFilePath"/>
+                            <input type="hidden" name="current_path" t-att-value="current_path"/>
+                            
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="newFileName" class="form-label">New Name</label>
+                                    <input type="text" class="form-control" id="newFileName" name="new_name" required="required"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Rename</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- File Editor Template -->
+    <template id="portal_file_editor" name="File Editor">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Edit File - <t t-esc="filename"/></t>
+            </t>
+
+            <div class="row mt16">
+                <div class="col-12">
+                    <form t-attf-action="/my/saas/odoo-instance/{{instance.id}}/file-manager/save" method="POST">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="file_path" t-att-value="file_path"/>
+                        <input type="hidden" name="current_path" t-att-value="current_path"/>
+                        
+                        <div class="card">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-pencil-square-o text-warning me-2"/>
+                                    Editing: <strong><t t-esc="filename"/></strong>
+                                </h4>
+                                <div>
+                                    <a t-attf-href="/my/saas/odoo-instance/{{instance.id}}/file-manager/{{current_path}}" class="btn btn-secondary me-2">
+                                        <i class="fa fa-times"/> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa fa-save"/> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body p-0">
+                                <textarea name="file_content" id="file_content_editor" class="form-control" rows="25" style="font-family: monospace; border: none; border-radius: 0; resize: vertical; padding: 15px; background: #272822; color: #f8f8f2;"><t t-esc="content"/></textarea>
+                            </div>
+                            <div class="card-footer bg-light text-muted small">
+                                <i class="fa fa-info-circle"/> You can edit any file. Make sure to save your changes.
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Error Page Template -->
+    <template id="error_page" name="File Manager Error">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h4 class="mb-0"><i class="fa fa-exclamation-triangle me-2"/> Error</h4>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <h5 class="text-danger mb-4"><t t-esc="error_message"/></h5>
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                    <i class="fa fa-arrow-left me-2"/> Go Back
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

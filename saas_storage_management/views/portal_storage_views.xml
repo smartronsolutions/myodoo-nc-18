@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_storage_dashboard" name="Storage Dashboard">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <h1>Storage Management</h1>
+                
+                <!-- Storage Warning Alerts -->
+                <t t-foreach="warnings" t-as="warning">
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>⚠️ Storage Warning!</strong>
+                        <br/>
+                        <span t-esc="warning['instance_name']"/> instance:
+                        <br/>
+                        You have used <strong><t t-esc="warning['used']"/> GB out of <t t-esc="warning['limit']"/> GB</strong> (<strong><t t-esc="warning['percentage']"/>%</strong>)
+                        <t t-if="warning['status'] == 'critical'">
+                            <br/>
+                            <span class="text-danger"><strong>⛔ CRITICAL: Your storage is almost full!</strong></span>
+                        </t>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </t>
+                
+                <div t-if="not instances" class="alert alert-info">
+                    <p>No instances found.</p>
+                </div>
+                
+                <t t-foreach="instances" t-as="instance">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h5 class="mb-0"><t t-esc="instance.name"/></h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <t t-if="instance.storage_is_unlimited">
+                                        <p><strong>Storage:</strong> <span class="badge bg-info">Unlimited</span></p>
+                                        <p><strong>Used:</strong> <t t-esc="round(instance.storage_used_gb, 2)"/> GB</p>
+                                    </t>
+                                    <t t-else="">
+                                        <p><strong>Used:</strong> <t t-esc="round(instance.storage_used_gb, 2)"/> GB / <t t-esc="instance.storage_limit_gb"/> GB</p>
+                                        <p><strong>Usage:</strong> <t t-esc="round(instance.storage_percentage, 1)"/>%</p>
+                                    </t>
+                                </div>
+                                <div class="col-md-6">
+                                    <t t-if="not instance.storage_is_unlimited">
+                                        <div class="progress" style="height: 25px;">
+                                            <t t-set="bar_color" t-value="'bg-success' if instance.storage_percentage &lt; 80 else 'bg-warning' if instance.storage_percentage &lt; 90 else 'bg-danger'"/>
+                                            <div class="progress-bar" 
+                                                 t-att-style="'width: ' + str(min(instance.storage_percentage, 100)) + '%'"
+                                                 t-att-class="bar_color">
+                                                <t t-esc="round(instance.storage_percentage, 1)"/>%
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <p class="text-muted">No storage limit</p>
+                                    </t>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Badge -->
+                            <div class="mt-3">
+                                <t t-if="instance.storage_status == 'ok'">
+                                    <span class="badge bg-success"><i class="fa fa-check"/> OK</span>
+                                </t>
+                                <t t-elif="instance.storage_status == 'warning'">
+                                    <span class="badge bg-warning"><i class="fa fa-exclamation"/> Warning (80%+)</span>
+                                </t>
+                                <t t-elif="instance.storage_status == 'critical'">
+                                    <span class="badge bg-danger"><i class="fa fa-exclamation-triangle"/> Critical (90%+)</span>
+                                </t>
+                                <t t-elif="instance.storage_status == 'full'">
+                                    <span class="badge bg-dark"><i class="fa fa-times"/> Full (100%+)</span>
+                                </t>
+                                <t t-elif="instance.storage_status == 'unlimited'">
+                                    <span class="badge bg-info"><i class="fa fa-infinity"/> Unlimited</span>
+                                </t>
+                            </div>
+                            
+                            <!-- Request Upgrade Button -->
+                            <t t-if="not instance.storage_is_unlimited">
+                                <div class="mt-3">
+                                    <button class="btn btn-primary request-upgrade-btn" 
+                                            type="button"
+                                            t-att-data-instance-id="instance.id"
+                                            t-att-data-instance-name="instance.name"
+                                            t-att-data-current-limit="instance.storage_limit_gb">
+                                        Request Upgrade
+                                    </button>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+            
+            <!-- Message Container -->
+            <div id="messageContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
+            
+            <script><![CDATA[
+                // Simple message display function
+                function showMessage(type, message) {
+                    const container = document.getElementById('messageContainer');
+                    
+                    // Determine colors
+                    let bgColor = 'bg-info';
+                    let title = 'Info';
+                    
+                    if (type === 'success') {
+                        bgColor = 'bg-success';
+                        title = '✅ Success';
+                    } else if (type === 'error') {
+                        bgColor = 'bg-danger';
+                        title = '❌ Error';
+                    } else if (type === 'warning') {
+                        bgColor = 'bg-warning';
+                        title = '⚠️ Warning';
+                    }
+                    
+                    // Create alert div
+                    const alert = document.createElement('div');
+                    alert.className = 'alert ' + bgColor + ' alert-dismissible fade show';
+                    alert.setAttribute('role', 'alert');
+                    alert.innerHTML = '<strong>' + title + '</strong><br/>' + message + 
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+                    
+                    container.appendChild(alert);
+                    
+                    // Auto remove after 5 seconds
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 5000);
+                }
+                
+                // Handle button clicks
+                document.querySelectorAll('.request-upgrade-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        const instanceId = String(this.getAttribute('data-instance-id')).trim();
+                        const instanceName = String(this.getAttribute('data-instance-name')).trim();
+                        const currentLimit = parseFloat(this.getAttribute('data-current-limit'));
+                        
+                        console.log('Button clicked - Instance:', instanceName, 'ID:', instanceId, 'Current Limit:', currentLimit);
+                        
+                        if (!instanceId || instanceId === 'undefined' || instanceId === '') {
+                            console.error('Invalid instance ID:', instanceId);
+                            showMessage('error', 'Error: Instance ID not found');
+                            return;
+                        }
+                        
+                        const newLimit = prompt('Enter new storage limit (GB) for "' + instanceName + '":\n\nCurrent limit: ' + currentLimit + ' GB');
+                        if (newLimit) {
+                            const newLimitFloat = parseFloat(newLimit);
+                            
+                            if (isNaN(newLimitFloat) || newLimitFloat <= 0) {
+                                showMessage('error', 'Please enter a valid number greater than 0');
+                                return;
+                            }
+                            
+                            // Disable button and show loading
+                            const self = this;
+                            self.disabled = true;
+                            const originalText = self.innerHTML;
+                            self.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+                            
+                            fetch('/my/storage/request-upgrade', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    instance_id: parseInt(instanceId),
+                                    new_limit_gb: newLimitFloat
+                                })
+                            })
+                            .then(function(r) { return r.json(); })
+                            .then(function(data) {
+                                console.log('Response:', data);
+                                
+                                var result = data;
+                                if (data.result) {
+                                    result = data.result;
+                                }
+                                
+                                console.log('Result:', result);
+                                
+                                if (result && result.status === 'success') {
+                                    showMessage('success', result.message);
+                                    setTimeout(function() { location.reload(); }, 2000);
+                                } else if (result && result.status === 'error') {
+                                    showMessage('error', result.message);
+                                } else {
+                                    showMessage('error', 'Unknown response: ' + JSON.stringify(result));
+                                }
+                            })
+                            .catch(function(err) {
+                                console.error('Fetch error:', err);
+                                showMessage('error', 'An error occurred. Please try again.');
+                            })
+                            .finally(function() {
+                                self.disabled = false;
+                                self.innerHTML = originalText;
+                            });
+                        }
+                    });
+                });
+            ]]></script>
+        </t>
+    </template>
+</odoo>

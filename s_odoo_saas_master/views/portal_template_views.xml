@@ -177,7 +177,7 @@
                                         <i class="fa fa-fw fa-plug"/> Connect
                                     </a>
                                 </div>
-                                <div class="btn-toolbar flex-sm-nowrap">
+                                <div class="btn-toolbar">
                                     <div t-if="instance.operation_state != 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1">
                                         <a class="btn btn-success w-100 o_instance_start" t-att-data-instance_id="instance.id" href="#" title="Start"><i class="fa fa-fw fa-play"/> Start</a>
                                     </div>
@@ -209,8 +209,8 @@
                         	<div style="width: 14rem;" class="mb-3 text-secondary text-wrap">
                         		Or set cname record of your domain is <span class="text-primary fw-bold" t-esc="instance.based_domain_id.name" />
                         	</div>
-                        	<div class="input-group mb-3">							  
-							  <input type="text" id="domain_name" class="form-control" placeholder="your-domain.com" aria-label="Your domain name" />
+                        	<div class="mb-3">
+							  <input type="text" id="domain_name" class="form-control mb-2" placeholder="your-domain.com" aria-label="Your domain name" />
 							  <a class="btn btn-primary w-100 o_instance_add_custom_domain" t-att-data-instance_id="instance.id" href="#" title="Add your domain name"><i class="fa fa-fw fa-hand-o-down"/> Add</a>
 							</div>
                         </div>

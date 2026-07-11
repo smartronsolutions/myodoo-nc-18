@@ -68,11 +68,13 @@
             </tr>
         </xpath>
         
-        <!-- Add Storage Button to Toolbar -->
+        <!-- Add Storage Button to Toolbar - shown regardless of run/stop, since a stopped
+             instance (e.g. auto-stopped for being full) is exactly when the customer needs
+             to see storage usage and request an increase. -->
         <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
-            <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
-                <a class="btn btn-block btn-warning o_instance_storage_info" 
-                   t-attf-href="/my/storage" 
+            <div t-if="instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
+                <a class="btn btn-block btn-warning o_instance_storage_info"
+                   t-attf-href="/my/storage"
                    title="View Storage" target="_blank">
                     <i class="fa fa-fw fa-database"/> Storage
                 </a>

@@ -1,4 +1,4 @@
-from odoo import api, models, fields
+from odoo import api, models, fields, _
 from odoo.exceptions import ValidationError, UserError
 import os
 import logging
@@ -277,9 +277,11 @@ class SaasOdooInstance(models.Model):
                 
                 _logger.info(f"[STORAGE] Upgrade request for {record.name}: {record.storage_limit_gb}GB → {new_limit_gb}GB")
                 
-                # Send email to admin
+                # Send email to admin and log an Activity on the instance so it shows up
+                # in the backend Activities view / chatter for follow-up.
                 self._send_upgrade_request_email(record, new_limit_gb)
-                
+                record._schedule_storage_upgrade_activity(new_limit_gb)
+
                 # Return success message
                 return {
                     'status': 'success',
@@ -293,20 +295,46 @@ class SaasOdooInstance(models.Model):
                     'message': f'An error occurred: {str(e)}'
                 }
 
+    def _get_storage_admin_users(self):
+        """SaaS Manager group users, falling back to the super admin (uid 2)"""
+        admin_users = self.env['res.users'].search([('groups_id.name', 'ilike', 'SaaS Manager')])
+        if not admin_users:
+            admin_users = self.env['res.users'].search([('id', '=', 2)])
+        return admin_users
+
+    def _schedule_storage_upgrade_activity(self, new_limit_gb):
+        """Log a To-Do activity on the instance so admins see the request in Odoo's
+        Activities view / chatter, in addition to the notification email."""
+        self.ensure_one()
+        admin_users = self._get_storage_admin_users()
+        if not admin_users:
+            _logger.warning("[STORAGE] No admin users found to assign upgrade request activity")
+            return
+        self.activity_schedule(
+            act_type_xmlid='mail.mail_activity_data_todo',
+            summary=_('Storage upgrade requested: %s GB') % new_limit_gb,
+            note=_(
+                '%(partner)s requested a storage increase for instance %(instance)s: '
+                '%(current)s GB → %(requested)s GB.'
+            ) % {
+                'partner': self.partner_id.name,
+                'instance': self.name,
+                'current': self.storage_limit_gb,
+                'requested': new_limit_gb,
+            },
+            user_id=admin_users[0].id,
+        )
+
     def _send_upgrade_request_email(self, instance, new_limit_gb):
         """Send email notification to admin about upgrade request"""
         try:
             # Get admin users
-            admin_users = self.env['res.users'].search([('groups_id.name', 'ilike', 'SaaS Manager')])
-            
-            if not admin_users:
-                # Fallback to super admin
-                admin_users = self.env['res.users'].search([('id', '=', 2)])
-            
+            admin_users = self._get_storage_admin_users()
+
             if not admin_users:
                 _logger.warning(f"[STORAGE] No admin users found to send upgrade request email")
                 return
-            
+
             # Prepare email content
             subject = f"Storage Upgrade Request - {instance.name}"
             body = f"""

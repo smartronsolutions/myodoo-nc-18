@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Inject File Manager button into existing portal instance page -->
+    <!-- Inject File Manager button into existing portal instance page - shown regardless of
+         run/stop, since files live on the host filesystem independently of the container
+         being up, and are exactly what's needed to free up space when stopped for being full. -->
     <template id="portal_instance_page_inherit_file_manager" inherit_id="s_odoo_saas_master.portal_instance_page">
         <xpath expr="//div[hasclass('btn-toolbar')]" position="inside">
-            <div t-if="instance.operation_state == 'run' and instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
-                <a class="btn btn-block btn-info o_instance_file_manager" 
-                   t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager" 
+            <div t-if="instance.state == 'deploy'" class="btn-group flex-grow-1 mx-1 mt-2">
+                <a class="btn btn-block btn-info o_instance_file_manager"
+                   t-attf-href="/my/saas/odoo-instance/{{ instance.id }}/file-manager"
                    title="File Manager" target="_blank">
                     <i class="fa fa-fw fa-folder-open"/> File Manager
                 </a>

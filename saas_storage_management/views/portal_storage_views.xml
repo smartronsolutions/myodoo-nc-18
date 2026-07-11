@@ -109,7 +109,7 @@
                             showMessage('success', result.message);
                             setTimeout(function(){ location.reload(); }, 1500);
                         } else {
-                            setError((result &amp;&amp; result.message) || 'Unknown error, please try again.');
+                            setError((result && result.message) || 'Unknown error, please try again.');
                         }
                     })
                     .catch(function(){

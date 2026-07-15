@@ -101,6 +101,7 @@ class SaaSFileManager(http.Controller):
             })
 
         except Exception as e:
+            _logger.exception("File manager error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/upload',
@@ -121,6 +122,7 @@ class SaaSFileManager(http.Controller):
                 redirect_url += f"/{current_path}"
             return request.redirect(redirect_url)
         except Exception as e:
+            _logger.exception("File upload error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/delete',
@@ -140,6 +142,7 @@ class SaaSFileManager(http.Controller):
                 redirect_url += f"/{current_path}"
             return request.redirect(redirect_url)
         except Exception as e:
+            _logger.exception("File delete error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/download',
@@ -162,6 +165,7 @@ class SaaSFileManager(http.Controller):
             ]
             return request.make_response(content, headers=headers)
         except Exception as e:
+            _logger.exception("File download error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/editor',
@@ -186,6 +190,7 @@ class SaaSFileManager(http.Controller):
                 'page_name': 'file_manager',
             })
         except Exception as e:
+            _logger.exception("File editor error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/save',
@@ -205,6 +210,7 @@ class SaaSFileManager(http.Controller):
                 redirect_url += f"/{current_path}"
             return request.redirect(redirect_url)
         except Exception as e:
+            _logger.exception("File save error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})
 
     @http.route('/my/saas/odoo-instance/<int:instance_id>/file-manager/rename',
@@ -230,4 +236,5 @@ class SaaSFileManager(http.Controller):
                 redirect_url += f"/{current_path}"
             return request.redirect(redirect_url)
         except Exception as e:
+            _logger.exception("File rename error")
             return request.render("saas_file_manager.error_page", {'error_message': str(e)})

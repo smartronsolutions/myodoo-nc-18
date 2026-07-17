@@ -84,7 +84,7 @@
       <span class="brand-name">MY ODOO NC<small>New Caledonia</small></span>
     </a>
     <nav class="navlinks" id="mo_navlinks">
-      <a class="navlink" href="/saas">Home</a>
+      <a class="navlink" href="/">Home</a>
       <a class="navlink" href="/services">Services</a>
       <a class="navlink" href="/about">About</a>
       <a class="navlink" href="/contact-us">Contact Us</a>

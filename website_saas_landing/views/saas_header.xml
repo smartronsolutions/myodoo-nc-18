@@ -29,8 +29,10 @@
 
 /* Odoo/Bootstrap compatibility and responsive safeguards. */
 .mo_site{direction:ltr!important;text-align:left}
-.mo_header_shell{position:sticky;top:0;z-index:1050;width:100%}
+.mo_header_shell{position:sticky;top:0;z-index:1050;width:100%;overflow:visible!important}
 .mo_header_shell > header{display:block!important;position:relative;top:auto;width:100%}
+.mo_header_shell .nav,.mo_header_shell .nav-actions,.mo_header_shell .mo_account{overflow:visible!important}
+.mo_header_shell .mo_account_drop{z-index:2000!important}
 .mo_site .container{max-width:1160px!important;padding-left:0!important;padding-right:0!important}
 .mo_site .hero-grid > *,.mo_site .contact-grid > *,.mo_site .feature-band > *{min-width:0}
 .mo_site img{max-width:100%;height:auto}
@@ -94,12 +96,12 @@
       </div>
       <button class="btn btn-primary" type="button" onclick="location.href='/contact-us'">Book a demo</button>
       <div class="mo_account" id="mo_account">
-        <button class="mo_account_btn" id="mo_account_btn" type="button">
+        <button class="mo_account_btn" id="mo_account_btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="mo_account_drop">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span class="mo_acc_label"><t t-if="request.env.user._is_public()">Sign in</t><t t-if="not request.env.user._is_public()">My Account</t></span>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div class="mo_account_drop" id="mo_account_drop">
+        <div class="mo_account_drop" id="mo_account_drop" role="menu">
           <t t-if="not request.env.user._is_public()">
             <a href="/my">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
@@ -155,22 +157,6 @@
       btn.classList.add('active');
     });
   });
-  var accBtn = document.getElementById('mo_account_btn');
-  var accDrop = document.getElementById('mo_account_drop');
-  var accWrap = document.getElementById('mo_account');
-  if(accBtn &amp;&amp; accDrop){
-    accBtn.addEventListener('click', function(e){
-      e.stopPropagation();
-      accBtn.classList.toggle('mo_active_btn');
-      accDrop.classList.toggle('mo_open');
-    });
-    document.addEventListener('click', function(e){
-      if(accWrap &amp;&amp; !accWrap.contains(e.target)){
-        accBtn.classList.remove('mo_active_btn');
-        accDrop.classList.remove('mo_open');
-      }
-    });
-  }
   var path = window.location.pathname;
   document.querySelectorAll('.mo_site .navlink').forEach(function(a){
     if(a.getAttribute('href') === path){ a.classList.add('active'); }

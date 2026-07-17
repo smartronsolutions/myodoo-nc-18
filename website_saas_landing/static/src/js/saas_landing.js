@@ -11,9 +11,46 @@
    * Initialize landing page enhancements
    */
   function initLandingPage() {
-    // Add any additional functionality here
-    console.log('SaaS Landing Page initialized');
+    document.documentElement.classList.add('mo_saas_ready');
   }
+
+  function closeAccountDropdown() {
+    var account = document.getElementById('mo_account');
+    if (!account) return;
+    var button = account.querySelector('#mo_account_btn');
+    var dropdown = account.querySelector('#mo_account_drop');
+    if (button) {
+      button.classList.remove('mo_active_btn');
+      button.setAttribute('aria-expanded', 'false');
+    }
+    if (dropdown) dropdown.classList.remove('mo_open');
+  }
+
+  /* Delegation survives Odoo frontend navigation and dynamic layout updates. */
+  document.addEventListener('click', function (event) {
+    var accountButton = event.target.closest('#mo_account_btn');
+    if (accountButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      var account = accountButton.closest('#mo_account');
+      var dropdown = account && account.querySelector('#mo_account_drop');
+      if (!dropdown) return;
+      var opening = !dropdown.classList.contains('mo_open');
+      closeAccountDropdown();
+      if (opening) {
+        dropdown.classList.add('mo_open');
+        accountButton.classList.add('mo_active_btn');
+        accountButton.setAttribute('aria-expanded', 'true');
+      }
+      return;
+    }
+
+    if (!event.target.closest('#mo_account')) closeAccountDropdown();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') closeAccountDropdown();
+  });
 
   /**
    * Handle window load event

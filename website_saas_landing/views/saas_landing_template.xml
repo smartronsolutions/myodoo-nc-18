@@ -11,818 +11,199 @@
   <field name="arch" type="xml">
 <t t-name="website_saas_landing.saas_landing_page">
 <t t-call="website.layout">
-<t t-set="additional_title">My Odoo &#8212; Professional Cloud ERP Platform</t>
+<t t-set="additional_title">My Odoo NC — Home</t>
 <div id="wrap">
-<div class="oc_page">
+<div class="mo_site">
+<div class="top-glow"></div><div class="top-glow two"></div>
 
-<style>
-/* ===================================================
-   ODOOCLOUD PREMIUM LANDING PAGE
-   All styles scoped inside .oc_page - ZERO global impact
-   =================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Bricolage+Grotesque:wght@400;500;600;700;800&amp;display=swap');
-
-.oc_page{font-family:'Inter',system-ui,sans-serif;color:#0F172A;background:#fff;overflow-x:hidden;line-height:1.6}
-
-/* Hide Odoo default footer on this page (global nav shows via saas_header.xml) */
-body:has(.oc_page) #wrapwrap > footer,
-body:has(.oc_page) .o_main_navbar{display:none!important}
-body:has(.oc_page) #wrapwrap > main{padding-top:0!important;margin-top:0!important}
-.oc_page *,.oc_page *::before,.oc_page *::after{box-sizing:border-box;margin:0;padding:0}
-
-/* ── TOKENS ── */
-.oc_page{
-  --p:#7C3AED;--pd:#5B21B6;--pl:#8B5CF6;--pp:#EDE9FE;
-  --t:#017E84;--tl:#0EA5E9;
-  --d:#0F172A;--m:#64748B;--b:#E2E8F0;
-  --w:#fff;--bg:#F8FAFC;
-  --r:12px;--rl:20px;
-  --s1:0 1px 3px rgba(0,0,0,.08);
-  --s2:0 4px 24px rgba(124,58,237,.12);
-  --s3:0 20px 60px rgba(124,58,237,.18)
-}
-
-/* ── HERO ── */
-.oc_hero{min-height:100vh;padding-top:72px;background:linear-gradient(165deg,#FAFBFF 0%,#F0EBFF 45%,#E8F8F8 100%);display:flex;align-items:center;position:relative;overflow:hidden}
-.oc_hero_orb1{position:absolute;top:-120px;right:-80px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.1) 0%,transparent 65%);pointer-events:none}
-.oc_hero_orb2{position:absolute;bottom:-80px;left:-60px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(1,126,132,.08) 0%,transparent 65%);pointer-events:none}
-.oc_hero_dots{position:absolute;inset:0;background-image:radial-gradient(rgba(124,58,237,.08) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
-.oc_hero_inner{max-width:1240px;margin:0 auto;padding:80px 5%;display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:center;position:relative;z-index:1;width:100%}
-.oc_hero_badge{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--b);border-radius:100px;padding:5px 14px 5px 6px;font-size:.78rem;font-weight:600;color:var(--p);margin-bottom:24px;box-shadow:var(--s1)}
-.oc_hero_badge_pip{width:22px;height:22px;background:linear-gradient(135deg,var(--p),var(--pl));border-radius:50%;display:flex;align-items:center;justify-content:center}
-.oc_hero_h1{font-family:'Bricolage Grotesque',sans-serif;font-size:3.75rem;font-weight:800;line-height:1.08;letter-spacing:-2px;color:var(--d);margin-bottom:22px}
-.oc_hero_h1 em{font-style:italic;font-weight:700;background:linear-gradient(135deg,var(--p),var(--pl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.oc_hero_p{font-size:1.1rem;color:var(--m);line-height:1.75;margin-bottom:36px;max-width:500px}
-.oc_hero_btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
-.oc_btn_hero_p{padding:14px 28px;border-radius:10px;font-size:.95rem;font-weight:700;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff!important;border:none;box-shadow:0 4px 20px rgba(124,58,237,.35);text-decoration:none!important;display:inline-flex;align-items:center;gap:8px;transition:all .25s}
-.oc_btn_hero_p:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,58,237,.45);color:#fff!important}
-.oc_btn_hero_s{padding:14px 28px;border-radius:10px;font-size:.95rem;font-weight:600;background:#fff;color:var(--d)!important;border:1.5px solid var(--b);text-decoration:none!important;display:inline-flex;align-items:center;gap:8px;transition:all .25s}
-.oc_btn_hero_s:hover{border-color:var(--p);color:var(--p)!important}
-.oc_hero_stats{display:flex;gap:36px;flex-wrap:wrap}
-.oc_stat{display:flex;flex-direction:column;gap:2px}
-.oc_stat_n{font-family:'Bricolage Grotesque',sans-serif;font-size:1.9rem;font-weight:800;color:var(--d);letter-spacing:-1px;line-height:1}
-.oc_stat_l{font-size:.8rem;color:var(--m);font-weight:500}
-.oc_stat_sep{width:1px;height:40px;background:var(--b);align-self:center}
-
-/* Dashboard frame */
-.oc_dash_wrap{position:relative}
-.oc_dash_glow{position:absolute;inset:-20px;background:radial-gradient(ellipse at center,rgba(124,58,237,.15) 0%,transparent 70%);border-radius:30px;pointer-events:none}
-.oc_dash_frame{background:#fff;border-radius:var(--rl);box-shadow:var(--s3),0 0 0 1px rgba(124,58,237,.08);overflow:hidden;position:relative;z-index:1;transform:perspective(1200px) rotateY(-6deg) rotateX(3deg) scale(.97);transition:transform .5s ease}
-.oc_dash_frame:hover{transform:perspective(1200px) rotateY(-2deg) rotateX(1deg) scale(1)}
-.oc_dash_bar{background:#1E293B;padding:10px 16px;display:flex;align-items:center;gap:8px}
-.oc_dash_dot{width:10px;height:10px;border-radius:50%}
-.oc_dash_url{flex:1;background:#0F172A;border-radius:6px;padding:4px 12px;font-size:.72rem;color:#94A3B8;font-family:monospace;margin:0 8px}
-.oc_dash_frame img{width:100%;height:auto;display:block}
-
-/* ── TRUSTED ── */
-.oc_trusted{background:#fff;padding:24px 5%;border-top:1px solid var(--b);border-bottom:1px solid var(--b)}
-.oc_trusted_inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:40px;flex-wrap:wrap}
-.oc_trusted_lbl{font-size:.75rem;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
-.oc_trusted_sep{width:1px;height:28px;background:var(--b)}
-.oc_trusted_logos{display:flex;align-items:center;gap:36px;flex:1;flex-wrap:wrap}
-.oc_trusted_logo{font-size:.82rem;font-weight:800;color:#CBD5E1;letter-spacing:.5px;text-transform:uppercase;transition:color .2s;cursor:default}
-.oc_trusted_logo:hover{color:var(--p)}
-.oc_trusted_badge{display:flex;align-items:center;gap:9px;font-size:.85rem;font-weight:700;color:#475569;white-space:nowrap}
-.oc_trusted_mono{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:800;flex-shrink:0}
-
-/* ── ANIMATED STATS ── */
-.oc_counters{background:linear-gradient(135deg,#F5F3FF 0%,#ECFEFF 100%);padding:56px 5%;border-bottom:1px solid var(--b)}
-.oc_counters_in{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
-.oc_counter{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:0 12px;position:relative}
-.oc_counter:not(:first-child)::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:1px;background:var(--b)}
-.oc_counter_n{font-family:'Bricolage Grotesque',sans-serif;font-size:2.6rem;font-weight:800;letter-spacing:-1.5px;background:linear-gradient(135deg,var(--p),var(--t));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.oc_counter_l{font-size:.85rem;color:var(--m);font-weight:600;margin-top:8px}
-
-/* ── SECTION COMMONS ── */
-.oc_sec{padding:96px 5%}
-.oc_sec_in{max-width:1100px;margin:0 auto}
-.oc_eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
-.oc_eyebrow::before{content:'';width:20px;height:2px;background:linear-gradient(90deg,var(--p),var(--pl));border-radius:2px}
-.oc_h2{font-family:'Bricolage Grotesque',sans-serif;font-size:2.75rem;font-weight:800;line-height:1.12;letter-spacing:-1.2px;color:var(--d);margin-bottom:14px}
-.oc_h2 em{font-style:italic;font-weight:700;background:linear-gradient(135deg,var(--p),var(--pl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.oc_lead{font-size:1.05rem;color:var(--m);line-height:1.75;max-width:560px;margin-bottom:60px}
-
-/* ── FEATURES ── */
-.oc_feat_grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.oc_feat{padding:28px;border-radius:var(--r);border:1px solid var(--b);background:#fff;transition:all .3s;cursor:default;position:relative;overflow:hidden}
-.oc_feat::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,.03),transparent);opacity:0;transition:opacity .3s}
-.oc_feat:hover{transform:translateY(-5px);box-shadow:var(--s2);border-color:rgba(124,58,237,.2)}
-.oc_feat:hover::after{opacity:1}
-.oc_feat_top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.oc_feat_icon{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--pp),#DDD6FE);display:flex;align-items:center;justify-content:center;transition:all .3s}
-.oc_feat:hover .oc_feat_icon{background:linear-gradient(135deg,var(--p),var(--pl));box-shadow:0 4px 12px rgba(124,58,237,.3)}
-.oc_feat_icon svg{width:22px;height:22px;fill:var(--p);transition:fill .3s}
-.oc_feat:hover .oc_feat_icon svg{fill:#fff}
-.oc_feat_arrow{width:28px;height:28px;border-radius:50%;border:1px solid var(--b);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateX(-4px);transition:all .3s}
-.oc_feat:hover .oc_feat_arrow{opacity:1;transform:translateX(0)}
-.oc_feat h3{font-size:1rem;font-weight:700;color:var(--d);margin-bottom:8px}
-.oc_feat p{font-size:.875rem;color:var(--m);line-height:1.65}
-
-/* ── INTEGRATIONS ── */
-.oc_int_grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.oc_int_card{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:28px 16px;border-radius:var(--r);border:1px solid var(--b);background:#fff;transition:all .3s;cursor:default}
-.oc_int_card:hover{transform:translateY(-5px);box-shadow:var(--s2);border-color:rgba(124,58,237,.2)}
-.oc_int_icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pp),#DDD6FE);transition:all .3s}
-.oc_int_card:hover .oc_int_icon{background:linear-gradient(135deg,var(--p),var(--pl));box-shadow:0 6px 18px rgba(124,58,237,.35)}
-.oc_int_icon svg{width:24px;height:24px;transition:stroke .3s}
-.oc_int_card:hover .oc_int_icon svg{stroke:#fff}
-.oc_int_name{font-size:.85rem;font-weight:700;color:var(--d)}
-.oc_int_tag{font-size:.72rem;color:var(--m)}
-
-/* ── FAQ ── */
-.oc_faq_list{display:flex;flex-direction:column;gap:12px;max-width:820px}
-.oc_faq_item{border:1px solid var(--b);border-radius:var(--r);background:#fff;overflow:hidden;transition:border-color .25s,box-shadow .25s}
-.oc_faq_item.oc_open{border-color:rgba(124,58,237,.3);box-shadow:var(--s2)}
-.oc_faq_q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px;background:transparent;border:none;text-align:left;font-family:inherit;font-size:.98rem;font-weight:700;color:var(--d);cursor:pointer}
-.oc_faq_chev{width:24px;height:24px;flex-shrink:0;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;transition:transform .3s,background .3s}
-.oc_faq_chev svg{width:11px;height:11px}
-.oc_faq_item.oc_open .oc_faq_chev{transform:rotate(180deg);background:var(--p)}
-.oc_faq_item.oc_open .oc_faq_chev svg{stroke:#fff}
-.oc_faq_a{max-height:0;overflow:hidden;transition:max-height .35s ease}
-.oc_faq_a p{padding:0 22px 22px;font-size:.9rem;line-height:1.7;color:var(--m)}
-.oc_faq_item.oc_open .oc_faq_a{max-height:240px}
-
-/* ── HOW IT WORKS ── */
-.oc_how{background:linear-gradient(160deg,#0F172A 0%,#1E1040 100%);padding:96px 5%;position:relative;overflow:hidden}
-.oc_how_orb{position:absolute;top:-200px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 65%);pointer-events:none}
-.oc_how .oc_eyebrow{color:rgba(255,255,255,.5)}
-.oc_how .oc_eyebrow::before{background:rgba(255,255,255,.3)}
-.oc_how .oc_h2{color:#fff}
-.oc_how .oc_lead{color:rgba(255,255,255,.5);max-width:500px}
-.oc_steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:16px}
-.oc_steps_line{position:absolute;top:30px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(124,58,237,.4) 20%,rgba(124,58,237,.4) 80%,transparent)}
-.oc_step{padding:0 16px;position:relative;z-index:1}
-.oc_step_num{width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(124,58,237,.4);background:rgba(124,58,237,.08);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:rgba(255,255,255,.6);margin-bottom:20px;transition:all .3s;backdrop-filter:blur(8px)}
-.oc_step:hover .oc_step_num,.oc_step:first-child .oc_step_num{background:linear-gradient(135deg,var(--p),var(--pl));border-color:var(--pl);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4)}
-.oc_step h4{font-size:.95rem;font-weight:700;color:#fff;margin-bottom:8px}
-.oc_step p{font-size:.83rem;color:rgba(255,255,255,.45);line-height:1.65}
-
-/* ── PRICING ── */
-.oc_pricing{background:var(--bg);padding:96px 5%}
-.oc_plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start}
-.oc_plan{background:#fff;border-radius:var(--rl);border:1px solid var(--b);padding:36px 30px;transition:all .3s;position:relative}
-.oc_plan:hover{transform:translateY(-6px);box-shadow:var(--s3)}
-.oc_plan.oc_featured{background:linear-gradient(160deg,#4C1D95 0%,#2D1B69 100%);border:none;transform:scale(1.04);box-shadow:0 24px 64px rgba(124,58,237,.35)}
-.oc_plan.oc_featured:hover{transform:scale(1.04) translateY(-6px)}
-.oc_pop_badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,#F59E0B,#EF4444);color:#fff;font-size:.7rem;font-weight:700;padding:4px 16px;border-radius:100px;white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;box-shadow:0 2px 8px rgba(245,158,11,.4)}
-.oc_plan_tier{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--p);margin-bottom:10px}
-.oc_featured .oc_plan_tier{color:rgba(255,255,255,.6)}
-.oc_plan_price{display:flex;align-items:baseline;gap:3px;margin-bottom:8px}
-.oc_plan_cur{font-size:1.1rem;font-weight:700;color:var(--d);margin-top:8px}
-.oc_plan_amt{font-family:'Bricolage Grotesque',sans-serif;font-size:3.2rem;font-weight:800;color:var(--d);line-height:1;letter-spacing:-2px}
-.oc_plan_per{font-size:.85rem;color:var(--m)}
-.oc_featured .oc_plan_cur,.oc_featured .oc_plan_amt{color:#fff}
-.oc_featured .oc_plan_per{color:rgba(255,255,255,.45)}
-.oc_plan_desc{font-size:.85rem;color:var(--m);line-height:1.6;margin-bottom:24px}
-.oc_featured .oc_plan_desc{color:rgba(255,255,255,.5)}
-.oc_plan_hr{border:none;border-top:1px solid var(--b);margin-bottom:20px}
-.oc_featured .oc_plan_hr{border-color:rgba(255,255,255,.1)}
-.oc_plan_ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:28px}
-.oc_plan_li{display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--d)}
-.oc_featured .oc_plan_li{color:rgba(255,255,255,.8)}
-.oc_chk{width:18px;height:18px;border-radius:50%;background:var(--pp);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.oc_chk svg{width:10px;height:10px}
-.oc_featured .oc_chk{background:rgba(255,255,255,.15)}
-.oc_plan_cta{width:100%;padding:13px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;border:1.5px solid var(--b);background:transparent;color:var(--d)!important;text-align:center;text-decoration:none!important;display:block}
-.oc_plan_cta:hover{border-color:var(--p);color:var(--p)!important;background:var(--pp)}
-.oc_plan_cta.oc_cta_feat{background:#fff;color:#4C1D95!important;border:none;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.oc_plan_cta.oc_cta_feat:hover{background:var(--pp);transform:translateY(-1px)}
-
-/* ── TESTIMONIALS ── */
-.oc_testi_grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.oc_testi{padding:28px;border-radius:var(--r);border:1px solid var(--b);background:var(--bg);transition:all .3s;position:relative}
-.oc_testi::before{content:'"';position:absolute;top:16px;right:20px;font-size:4rem;color:var(--pp);font-family:'Bricolage Grotesque',sans-serif;line-height:1}
-.oc_testi:hover{box-shadow:var(--s2);transform:translateY(-4px);border-color:rgba(124,58,237,.15)}
-.oc_stars{display:flex;gap:3px;margin-bottom:12px}
-.oc_star{color:#F59E0B;font-size:.9rem}
-.oc_testi_q{font-size:.9rem;line-height:1.72;color:var(--d);margin-bottom:20px;font-style:italic}
-.oc_testi_author{display:flex;align-items:center;gap:12px}
-.oc_testi_av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pl));display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0}
-.oc_testi_name{font-size:.875rem;font-weight:700;color:var(--d)}
-.oc_testi_role{font-size:.78rem;color:var(--m)}
-
-/* ── CTA SECTION ── */
-.oc_cta_sec{padding:96px 5%;background:linear-gradient(135deg,#1E1040 0%,#0F172A 100%);text-align:center;position:relative;overflow:hidden}
-.oc_cta_orb{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(124,58,237,.12) 0%,transparent 65%);pointer-events:none}
-.oc_cta_in{position:relative;z-index:1;max-width:680px;margin:0 auto}
-.oc_cta_sec .oc_eyebrow{color:rgba(255,255,255,.5);justify-content:center}
-.oc_cta_sec .oc_eyebrow::before{background:rgba(255,255,255,.3)}
-.oc_cta_sec .oc_h2{color:#fff;margin-bottom:16px}
-.oc_cta_p{font-size:1.05rem;color:rgba(255,255,255,.55);line-height:1.75;max-width:520px;margin:0 auto 40px}
-.oc_cta_btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.oc_btn_cta_p{padding:15px 36px;background:linear-gradient(135deg,var(--p),var(--pl));color:#fff!important;border:none;border-radius:10px;font-size:.95rem;font-weight:700;text-decoration:none!important;transition:all .25s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(124,58,237,.4)}
-.oc_btn_cta_p:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(124,58,237,.5);color:#fff!important}
-.oc_btn_cta_s{padding:15px 36px;background:transparent;color:rgba(255,255,255,.8)!important;border:1.5px solid rgba(255,255,255,.2);border-radius:10px;font-size:.95rem;font-weight:600;text-decoration:none!important;transition:all .25s;display:inline-block}
-.oc_btn_cta_s:hover{border-color:rgba(255,255,255,.6);color:#fff!important;background:rgba(255,255,255,.06)}
-.oc_cta_note{margin-top:20px;font-size:.8rem;color:rgba(255,255,255,.35)}
-
-/* ── FOOTER ── */
-.oc_footer{background:#060B18;padding:64px 5% 32px}
-.oc_footer_grid{max-width:1100px;margin:0 auto 48px;display:grid;grid-template-columns:2.2fr 1fr 1fr 1fr;gap:48px}
-.oc_footer_brand p{font-size:.85rem;line-height:1.75;margin-top:14px;max-width:260px;color:rgba(255,255,255,.4)}
-.oc_footer_col h5{font-size:.72rem;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
-.oc_footer_col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
-.oc_footer_col a{font-size:.85rem;color:rgba(255,255,255,.35)!important;text-decoration:none!important;transition:color .2s}
-.oc_footer_col a:hover{color:rgba(255,255,255,.8)!important}
-.oc_footer_bot{max-width:1100px;margin:0 auto;border-top:1px solid rgba(255,255,255,.06);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:rgba(255,255,255,.3);flex-wrap:wrap;gap:12px}
-.oc_footer_links{display:flex;gap:20px}
-.oc_footer_links a{color:rgba(255,255,255,.25)!important;text-decoration:none!important;transition:color .2s}
-.oc_footer_links a:hover{color:rgba(255,255,255,.6)!important}
-.oc_status_dot{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;color:rgba(255,255,255,.3)}
-.oc_status_dot::before{content:'';width:7px;height:7px;border-radius:50%;background:#10B981;box-shadow:0 0 6px #10B981}
-
-/* ── SCROLL REVEAL ── */
-.oc_reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease}
-.oc_reveal.oc_in{opacity:1;transform:translateY(0)}
-.oc_reveal_r{opacity:0;transform:translateX(30px);transition:opacity .65s ease,transform .65s ease}
-.oc_reveal_r.oc_in{opacity:1;transform:translateX(0)}
-
-/* ── RESPONSIVE ── */
-@media(max-width:1024px){
-  .oc_hero_inner{gap:40px}
-  .oc_hero_h1{font-size:2.9rem}
-  .oc_feat_grid{grid-template-columns:1fr 1fr}
-  .oc_plans{grid-template-columns:1fr;max-width:440px;margin:0 auto}
-  .oc_plan.oc_featured{transform:none}
-  .oc_plan.oc_featured:hover{transform:translateY(-6px)}
-  .oc_testi_grid{grid-template-columns:1fr 1fr}
-  .oc_int_grid{grid-template-columns:repeat(2,1fr)}
-  .oc_counters_in{grid-template-columns:1fr 1fr;row-gap:28px}
-  .oc_counter::before{display:none}
-}
-@media(max-width:768px){
-  .oc_hero_inner{grid-template-columns:1fr;gap:40px;padding:60px 5%}
-  .oc_hero_h1{font-size:2.3rem;letter-spacing:-1px}
-  .oc_sec,.oc_how,.oc_pricing,.oc_cta_sec{padding:64px 5%}
-  .oc_footer{padding:48px 5% 28px}
-  .oc_feat_grid{grid-template-columns:1fr}
-  .oc_steps{grid-template-columns:1fr 1fr;gap:28px}
-  .oc_steps_line{display:none}
-  .oc_testi_grid{grid-template-columns:1fr}
-  .oc_footer_grid{grid-template-columns:1fr 1fr;gap:28px}
-  .oc_trusted_inner{flex-direction:column;align-items:flex-start;gap:14px}
-  .oc_trusted_sep{display:none}
-  .oc_h2{font-size:2rem}
-  .oc_int_grid{grid-template-columns:1fr 1fr}
-}
-@media(max-width:480px){
-  .oc_hero_h1{font-size:1.9rem}
-  .oc_h2{font-size:1.7rem}
-  .oc_steps{grid-template-columns:1fr}
-  .oc_footer_grid{grid-template-columns:1fr}
-  .oc_hero_btns{flex-direction:column}
-  .oc_btn_hero_p,.oc_btn_hero_s{justify-content:center;width:100%}
-  .oc_cta_btns{flex-direction:column;align-items:center}
-  .oc_btn_cta_p,.oc_btn_cta_s{width:100%;text-align:center;justify-content:center}
-  .oc_int_grid{grid-template-columns:1fr}
-  .oc_counters_in{grid-template-columns:1fr;row-gap:24px}
-}
-</style>
+<main>
 
 <!-- ══════════════ HERO ══════════════ -->
-<section class="oc_hero">
-  <div class="oc_hero_orb1"></div>
-  <div class="oc_hero_orb2"></div>
-  <div class="oc_hero_dots"></div>
-  <div class="oc_hero_inner">
-    <!-- Left -->
-    <div>
-      <div class="oc_hero_badge">
-        <div class="oc_hero_badge_pip">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </div>
-        Cloud Platform for Odoo &#183; Powered by My Odoo
-      </div>
-      <h1 class="oc_hero_h1">Your ERP in the cloud,<br/><em>without complications</em></h1>
-      <p class="oc_hero_p">Deploy, manage and scale your Odoo instances with a professional platform. Full branch control, automatic builds and backups &#8212; all in one place.</p>
-      <div class="oc_hero_btns">
-        <a href="https://myodoo.nc/pricing" class="oc_btn_hero_p">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          Start for Free
-        </a>
-        <a href="#oc_how" class="oc_btn_hero_s">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
-          Watch Live Demo
-        </a>
-      </div>
-      <div class="oc_hero_stats">
-        <div class="oc_stat">
-          <span class="oc_stat_n">2,400+</span>
-          <span class="oc_stat_l">Active Projects</span>
-        </div>
-        <div class="oc_stat_sep"></div>
-        <div class="oc_stat">
-          <span class="oc_stat_n">99.9%</span>
-          <span class="oc_stat_l">Uptime Guaranteed</span>
-        </div>
-        <div class="oc_stat_sep"></div>
-        <div class="oc_stat">
-          <span class="oc_stat_n">&lt;2min</span>
-          <span class="oc_stat_l">Auto Deploy</span>
-        </div>
-      </div>
+<section class="hero"><div class="container hero-grid">
+  <div>
+    <span class="eyebrow"><i></i><span>Built for businesses in New Caledonia</span></span>
+    <h1>One platform.<br/><span class="gradient-text">Your entire business.</span></h1>
+    <p class="lead">Run sales, invoicing, inventory, projects and customer relationships from one beautifully connected Odoo workspace—with local support when you need it.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/contact-us">Start your project →</a>
+      <a class="btn btn-light" href="/services">Explore services</a>
     </div>
-    <!-- Right: Dashboard -->
-    <div class="oc_dash_wrap oc_reveal_r">
-      <div class="oc_dash_glow"></div>
-      <div class="oc_dash_frame">
-        <div class="oc_dash_bar">
-          <div class="oc_dash_dot" style="background:#FF5F57"></div>
-          <div class="oc_dash_dot" style="background:#FFBD2E"></div>
-          <div class="oc_dash_dot" style="background:#28CA41"></div>
-          <div class="oc_dash_url">&#128279; mycompany.odoocloud.com</div>
-        </div>
-        <img src="/website_saas_landing/static/src/img/hero_dashboard.png" alt="OdooCloud Dashboard" loading="lazy"/>
-      </div>
+    <div class="trust-row">
+      <span><i class="check">✓</i><b>Local support</b></span>
+      <span><i class="check">✓</i><b>Secure hosting</b></span>
+      <span><i class="check">✓</i><b>Modular growth</b></span>
     </div>
   </div>
-</section>
+  <div class="visual">
+    <div class="glass-orb orb1"></div><div class="glass-orb orb2"></div>
+    <div class="dashboard">
+      <div class="dash-top"><div class="dots"><i></i><i></i><i></i></div><div class="mini-profile"><span>My Odoo Workspace</span><i class="avatar"></i></div></div>
+      <div class="dash-grid">
+        <div class="metric"><small>Monthly sales</small><strong>8.4M</strong><span class="trend">↑ 18.6%</span></div>
+        <div class="chart"><small>Business growth</small><div class="bars"><i style="height:38%"></i><i style="height:55%"></i><i style="height:47%"></i><i style="height:75%"></i><i style="height:62%"></i><i style="height:91%"></i></div></div>
+        <div class="activity"><span class="appdot">S</span><div><b>Sales &amp; CRM</b><small style="display:block;color:#7b8491">Pipeline updated</small></div></div>
+        <div class="activity"><span class="appdot">I</span><div><b>Inventory</b><small style="display:block;color:#7b8491">Stock synchronized</small></div></div>
+      </div>
+    </div>
+    <div class="floating-card fc1">✓ <span>Invoice paid</span><small>124,500 XPF</small></div>
+    <div class="floating-card fc2">☁ <span>Backup complete</span><small>Your data is protected</small></div>
+  </div>
+</div></section>
 
-<!-- ══════════════ TRUSTED BY ══════════════ -->
-<div class="oc_trusted">
-  <div class="oc_trusted_inner">
-    <span class="oc_trusted_lbl">Trusted by</span>
-    <div class="oc_trusted_sep"></div>
-    <div class="oc_trusted_logos">
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#7C3AED,#8B5CF6)">TC</span>TechCorp</div>
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#017E84,#0EA5E9)">DX</span>Distribuidora XYZ</div>
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">MF</span>ManuFactory</div>
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#7C3AED,#017E84)">RP</span>RetailPlus</div>
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#0EA5E9,#8B5CF6)">SG</span>ServiGroup</div>
-      <div class="oc_trusted_badge"><span class="oc_trusted_mono" style="background:linear-gradient(135deg,#EF4444,#F59E0B)">AD</span>AgriData</div>
-    </div>
-  </div>
-</div>
+<div class="logo-strip"><div class="container strip">
+  <b>One connected suite</b>
+  <span class="mini-pill">CRM</span>
+  <span class="mini-pill">Accounting</span>
+  <span class="mini-pill">Invoicing</span>
+  <span class="mini-pill">Inventory</span>
+  <span class="mini-pill">Point of Sale</span>
+  <span class="mini-pill">eCommerce</span>
+  <span class="mini-pill">EpayNC</span>
+  <span class="mini-pill">AI Assistant</span>
+  <span class="mini-pill">Projects</span>
+</div></div>
 
-<!-- ══════════════ ANIMATED STATS ══════════════ -->
-<section class="oc_counters">
-  <div class="oc_counters_in">
-    <div class="oc_counter oc_reveal">
-      <span class="oc_counter_n" data-target="2400" data-suffix="+">0</span>
-      <span class="oc_counter_l">Active Projects</span>
-    </div>
-    <div class="oc_counter oc_reveal">
-      <span class="oc_counter_n" data-target="99.9" data-suffix="%" data-decimals="1">0</span>
-      <span class="oc_counter_l">Uptime SLA</span>
-    </div>
-    <div class="oc_counter oc_reveal">
-      <span class="oc_counter_n" data-target="18" data-suffix="M+">0</span>
-      <span class="oc_counter_l">Backups Completed</span>
-    </div>
-    <div class="oc_counter oc_reveal">
-      <span class="oc_counter_n" data-target="40" data-suffix="+">0</span>
-      <span class="oc_counter_l">Countries Served</span>
-    </div>
+<!-- ══════════════ CORE MODULES ══════════════ -->
+<section><div class="container">
+  <div class="section-head">
+    <span class="eyebrow"><i></i><span>Everything you need</span></span>
+    <h2>Work smarter with one connected system</h2>
+    <p>Replace scattered tools and repeated data entry with a clear, flexible platform that grows with your business.</p>
   </div>
-</section>
+  <div class="cards">
+    <article class="card"><div class="icon">◎</div><h3>CRM &amp; Sales</h3><p>Track leads, manage opportunities, prepare quotations and turn them into invoices without duplicate work.</p><a class="card-link" href="/services">Learn more →</a></article>
+    <article class="card"><div class="icon">▤</div><h3>Finance &amp; TGC</h3><p>Simplify invoicing, payment follow-up and local tax workflows with a structured financial process.</p><a class="card-link" href="/services">Learn more →</a></article>
+    <article class="card"><div class="icon">◫</div><h3>Operations</h3><p>Connect inventory, purchasing, projects, fleet and point of sale in real time.</p><a class="card-link" href="/services">Learn more →</a></article>
+  </div>
+</div></section>
 
-<!-- ══════════════ FEATURES ══════════════ -->
-<section class="oc_sec" id="oc_features">
-  <div class="oc_sec_in">
-    <div class="oc_eyebrow">Features</div>
-    <h2 class="oc_h2">Everything you need to <em>manage your Odoo</em></h2>
-    <p class="oc_lead">A complete platform that gives you full control over your deployments, similar to what Odoo.sh offers but on your own infrastructure.</p>
-    <div class="oc_feat_grid">
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Automatic Builds</h3>
-        <p>Every push to GitHub triggers an automatic build. View real-time logs and detect errors before production.</p>
-      </div>
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Branch Management</h3>
-        <p>Manage production, staging and development in parallel. Each branch has its own database and unique URL.</p>
-      </div>
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Automatic Backups</h3>
-        <p>Daily encrypted database backups. One-click restore to any point in the last 30 days.</p>
-      </div>
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Real-time Monitoring</h3>
-        <p>CPU, memory, disk and transactions per second. Automatic alerts when something is not working as expected.</p>
-      </div>
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Custom Subdomains</h3>
-        <p>Each instance gets its own automatic SSL subdomain. Connect your custom domain with a few clicks.</p>
-      </div>
-      <div class="oc_feat oc_reveal">
-        <div class="oc_feat_top">
-          <div class="oc_feat_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-          <div class="oc_feat_arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
-        </div>
-        <h3>Multi-tenant Ready</h3>
-        <p>Offer Odoo as a service to your clients. Manage instances, plans and billing from a single panel.</p>
-      </div>
-    </div>
+<!-- ══════════════ LOCAL ADVANTAGE ══════════════ -->
+<section style="padding-top:10px"><div class="container feature-band">
+  <div>
+    <span class="eyebrow"><i></i><span>The local advantage</span></span>
+    <h2>Powerful technology. Local understanding.</h2>
+    <p class="lead">A modern Odoo environment adapted to the practical needs of New Caledonian companies, supported by people who understand your context.</p>
   </div>
-</section>
+  <div class="feature-list">
+    <div class="feature-item"><i class="check">✓</i><div><b>English &amp; French support</b><small>Clear assistance for your team and users.</small></div></div>
+    <div class="feature-item"><i class="check">✓</i><div><b>Local financial workflows</b><small>Invoicing and TGC-ready processes.</small></div></div>
+    <div class="feature-item"><i class="check">✓</i><div><b>Managed platform</b><small>Hosting, backups and updates handled for you.</small></div></div>
+  </div>
+</div></section>
+
+<!-- ══════════════ STATS ══════════════ -->
+<section class="stats-band"><div class="container stats-grid">
+  <div class="stat"><strong>2,400+</strong><span>Active projects</span></div>
+  <div class="stat"><strong>99.9%</strong><span>Uptime target</span></div>
+  <div class="stat"><strong>&lt;2 min</strong><span>Automatic deployment</span></div>
+  <div class="stat"><strong>30 days</strong><span>Backup retention</span></div>
+</div></section>
+
+<!-- ══════════════ PLATFORM FEATURES ══════════════ -->
+<section id="platform-features"><div class="container">
+  <div class="section-head"><span class="eyebrow"><i></i><span>Cloud platform features</span></span><h2>Everything you need to manage Odoo professionally</h2><p>Deploy, test, monitor and scale your Odoo environments from one clear workspace.</p></div>
+  <div class="detail-grid">
+    <article class="detail-card"><div class="icon">↻</div><h3>Automatic Builds</h3><p>Every connected repository update can trigger a new build, with clear logs to help identify issues before production.</p></article>
+    <article class="detail-card"><div class="icon">⑂</div><h3>Branch Management</h3><p>Run production, staging and development branches in parallel, each with its own database and secure URL.</p></article>
+    <article class="detail-card"><div class="icon">☁</div><h3>Automatic Backups</h3><p>Keep encrypted database backups and restore a previous version quickly when needed.</p></article>
+    <article class="detail-card"><div class="icon">◴</div><h3>Real-time Monitoring</h3><p>Track CPU, memory, storage and application activity with alerts for unusual performance.</p></article>
+    <article class="detail-card"><div class="icon">⌘</div><h3>Custom Domains</h3><p>Use an included secure subdomain or connect your own domain with automatic SSL configuration.</p></article>
+    <article class="detail-card"><div class="icon">▦</div><h3>Multi-tenant Ready</h3><p>Manage multiple Odoo projects, customer environments and service plans from a single panel.</p></article>
+  </div>
+</div></section>
 
 <!-- ══════════════ INTEGRATIONS ══════════════ -->
-<section class="oc_sec oc_integrations" id="oc_integrations" style="background:var(--bg)">
-  <div class="oc_sec_in">
-    <div class="oc_eyebrow">Connections</div>
-    <h2 class="oc_h2">Connect your <em>favorite tools</em></h2>
-    <p class="oc_lead">My Odoo plugs into the tools you already use &#8212; payments, messaging, AI and automation &#8212; no code required.</p>
-    <div class="oc_int_grid">
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
-        <span class="oc_int_name">WhatsApp Business</span>
-        <span class="oc_int_tag">Messaging</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></div>
-        <span class="oc_int_name">Stripe</span>
-        <span class="oc_int_tag">Payments</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
-        <span class="oc_int_name">Google Workspace</span>
-        <span class="oc_int_tag">Productivity</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13,2 4,14 12,14 11,22 20,10 12,10 13,2"/></svg></div>
-        <span class="oc_int_name">Zapier</span>
-        <span class="oc_int_tag">Automation</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-        <span class="oc_int_name">Slack</span>
-        <span class="oc_int_tag">Team Alerts</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.5V9a2 2 0 00-1-1.73l-6-3.46a2 2 0 00-2 0l-6 3.46A2 2 0 004 9v7.5"/><path d="M4 9l8 4.5L20 9"/></svg></div>
-        <span class="oc_int_name">Microsoft 365</span>
-        <span class="oc_int_tag">Cloud Office</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.5L21 11l-6.6 2.5L12 20l-2.4-6.5L3 11l6.6-2.5z"/></svg></div>
-        <span class="oc_int_name">AI Assistant</span>
-        <span class="oc_int_tag">Smart Automation</span>
-      </div>
-      <div class="oc_int_card oc_reveal">
-        <div class="oc_int_icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2l1.5 4h9L18 2"/><path d="M3.5 6h17l-1.4 13a2 2 0 01-2 1.8H6.9a2 2 0 01-2-1.8z"/><path d="M9 10a3 3 0 006 0"/></svg></div>
-        <span class="oc_int_name">Shopify</span>
-        <span class="oc_int_tag">eCommerce</span>
-      </div>
-    </div>
+<section style="background:#fcfbfd"><div class="container">
+  <div class="section-head"><span class="eyebrow"><i></i><span>Connections</span></span><h2>Connect the tools your team already uses</h2><p>Bring payments, communication, productivity and automation into your Odoo workflows.</p></div>
+  <div class="integration-grid">
+    <div class="integration-item"><i>W</i>WhatsApp Business</div><div class="integration-item"><i>S</i>Stripe Payments</div>
+    <div class="integration-item"><i>G</i>Google Workspace</div><div class="integration-item"><i>Z</i>Zapier Automation</div>
+    <div class="integration-item"><i>◈</i>Slack Alerts</div><div class="integration-item"><i>M</i>Microsoft 365</div>
+    <div class="integration-item"><i>AI</i>AI Assistant</div><div class="integration-item"><i>Sh</i>Shopify</div>
   </div>
-</section>
+</div></section>
 
-<!-- ══════════════ HOW IT WORKS ══════════════ -->
-<section class="oc_how" id="oc_how">
-  <div class="oc_how_orb"></div>
-  <div class="oc_sec_in" style="position:relative;z-index:1">
-    <div class="oc_eyebrow">Process</div>
-    <h2 class="oc_h2">From zero to production <em>in 4 steps</em></h2>
-    <p class="oc_lead">No complex configurations. Your Odoo project ready in minutes, not days.</p>
-    <div class="oc_steps">
-      <div class="oc_steps_line"></div>
-      <div class="oc_step oc_reveal">
-        <div class="oc_step_num">1</div>
-        <h4>Create Your Project</h4>
-        <p>Register your account, choose a plan and create your project in seconds. Connect your GitHub repository.</p>
-      </div>
-      <div class="oc_step oc_reveal">
-        <div class="oc_step_num">2</div>
-        <h4>Configure Branches</h4>
-        <p>Define your production and development branches. The system detects them automatically.</p>
-      </div>
-      <div class="oc_step oc_reveal">
-        <div class="oc_step_num">3</div>
-        <h4>Automatic Deploy</h4>
-        <p>Each commit triggers a build. Review logs, test on staging and approve for production.</p>
-      </div>
-      <div class="oc_step oc_reveal">
-        <div class="oc_step_num">4</div>
-        <h4>Scale Without Limits</h4>
-        <p>More traffic? Increase workers with one click. Scale without interruptions or manual migrations.</p>
-      </div>
-    </div>
+<!-- ══════════════ PROCESS ══════════════ -->
+<section><div class="container">
+  <div class="section-head"><span class="eyebrow"><i></i><span>Simple process</span></span><h2>From setup to production in four steps</h2><p>A practical workflow designed to reduce technical complexity and launch projects faster.</p></div>
+  <div class="process-grid">
+    <article class="process-step"><h3>Create Your Project</h3><p>Choose a plan, create the project and connect your repository or existing Odoo database.</p></article>
+    <article class="process-step"><h3>Configure Branches</h3><p>Define production, staging and development environments for safer testing and releases.</p></article>
+    <article class="process-step"><h3>Automatic Deploy</h3><p>Build each update, review logs and validate changes before moving them into production.</p></article>
+    <article class="process-step"><h3>Scale Smoothly</h3><p>Increase resources as usage grows without rebuilding or manually migrating the environment.</p></article>
   </div>
-</section>
+</div></section>
 
-<!-- ══════════════ PRICING ══════════════ -->
-<section class="oc_pricing" id="oc_pricing">
-  <div class="oc_sec_in">
-    <div class="oc_eyebrow">Pricing</div>
-    <h2 class="oc_h2">Simple and <em>transparent plans</em></h2>
-    <p class="oc_lead">No hidden costs. Change plans whenever you want. Cancel at any time.</p>
-    <div class="oc_plans">
-      <!-- Starter -->
-      <div class="oc_plan oc_reveal">
-        <div class="oc_plan_tier">Starter</div>
-        <div class="oc_plan_price">
-          <span class="oc_plan_cur">$</span>
-          <span class="oc_plan_amt">29</span>
-          <span class="oc_plan_per">/month</span>
-        </div>
-        <p class="oc_plan_desc">Ideal for small projects or to try the platform before scaling.</p>
-        <hr class="oc_plan_hr"/>
-        <ul class="oc_plan_ul">
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>1 Odoo Project</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>2 Active Branches</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>10 GB Storage</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Daily Backups (7 days)</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>SSL Subdomain Included</li>
-        </ul>
-        <a href="https://myodoo.nc/pricing" class="oc_plan_cta">Start Free 14 Days</a>
-      </div>
-      <!-- Pro (Featured) -->
-      <div class="oc_plan oc_featured oc_reveal">
-        <div class="oc_pop_badge">&#11088; Most Popular</div>
-        <div class="oc_plan_tier">Pro</div>
-        <div class="oc_plan_price">
-          <span class="oc_plan_cur">$</span>
-          <span class="oc_plan_amt">79</span>
-          <span class="oc_plan_per">/month</span>
-        </div>
-        <p class="oc_plan_desc">For companies that need a professional environment with staging and dedicated support.</p>
-        <hr class="oc_plan_hr"/>
-        <ul class="oc_plan_ul">
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>5 Odoo Projects</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Unlimited Branches</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>50 GB Storage</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Daily Backups (30 days)</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Custom Domain + SSL</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Priority Support 24/7</li>
-        </ul>
-        <a href="https://myodoo.nc/pricing" class="oc_plan_cta oc_cta_feat">Start with Pro &#8594;</a>
-      </div>
-      <!-- Enterprise -->
-      <div class="oc_plan oc_reveal">
-        <div class="oc_plan_tier">Enterprise</div>
-        <div class="oc_plan_price">
-          <span class="oc_plan_cur">$</span>
-          <span class="oc_plan_amt">199</span>
-          <span class="oc_plan_per">/month</span>
-        </div>
-        <p class="oc_plan_desc">For Odoo partners and companies offering SaaS to multiple clients.</p>
-        <hr class="oc_plan_hr"/>
-        <ul class="oc_plan_ul">
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Unlimited Projects</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Multi-tenant SaaS</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>500 GB Storage</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Real-time Backups</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>SLA 99.9% Guaranteed</li>
-          <li class="oc_plan_li"><span class="oc_chk"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg></span>Dedicated Account Manager</li>
-        </ul>
-        <a href="#" class="oc_plan_cta">Talk to Sales</a>
-      </div>
-    </div>
+<!-- ══════════════ APPS ══════════════ -->
+<section><div class="container">
+  <div class="section-head">
+    <span class="eyebrow"><i></i><span>Odoo applications</span></span>
+    <h2>One connected system for every department</h2>
+    <p>Choose the applications your business needs today and expand the platform as your operations grow.</p>
   </div>
-</section>
-
-<!-- ══════════════ TESTIMONIALS ══════════════ -->
-<section class="oc_sec" id="oc_testi" style="background:#fff">
-  <div class="oc_sec_in">
-    <div class="oc_eyebrow">Success Stories</div>
-    <h2 class="oc_h2">What our <em>customers say</em></h2>
-    <p class="oc_lead">Companies from all over the world already manage their Odoo with our platform.</p>
-    <div class="oc_testi_grid">
-      <div class="oc_testi oc_reveal">
-        <div class="oc_stars"><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span></div>
-        <p class="oc_testi_q">"We went from managing our server manually to having everything automated. Automatic builds and backups saved us several times. It is exactly what we needed."</p>
-        <div class="oc_testi_author">
-          <div class="oc_testi_av">CR</div>
-          <div><div class="oc_testi_name">Carlos Rodriguez</div><div class="oc_testi_role">CTO &#183; Distribuidora XYZ, Mexico</div></div>
-        </div>
-      </div>
-      <div class="oc_testi oc_reveal">
-        <div class="oc_stars"><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span></div>
-        <p class="oc_testi_q">"As an Odoo partner, managing multiple clients was chaos. Now we have everything in one panel, each client with their isolated instance. The SaaS module is a gem."</p>
-        <div class="oc_testi_author">
-          <div class="oc_testi_av">AM</div>
-          <div><div class="oc_testi_name">Andrea Morales</div><div class="oc_testi_role">Director &#183; TechConsult, Colombia</div></div>
-        </div>
-      </div>
-      <div class="oc_testi oc_reveal">
-        <div class="oc_stars"><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span><span class="oc_star">&#9733;</span></div>
-        <p class="oc_testi_q">"The interface is identical to Odoo.sh but with the advantage that it is our own infrastructure. The support was excellent during implementation. Totally recommended."</p>
-        <div class="oc_testi_author">
-          <div class="oc_testi_av">JP</div>
-          <div><div class="oc_testi_name">Jose Pacheco</div><div class="oc_testi_role">IT Manager &#183; AgroData, Peru</div></div>
-        </div>
-      </div>
-    </div>
+  <div class="apps-grid">
+    <div class="app-card"><div class="app-symbol">CRM</div><b>CRM</b></div>
+    <div class="app-card"><div class="app-symbol">S</div><b>Sales</b></div>
+    <div class="app-card"><div class="app-symbol">P</div><b>Purchase</b></div>
+    <div class="app-card"><div class="app-symbol">I</div><b>Inventory</b></div>
+    <div class="app-card"><div class="app-symbol">M</div><b>Manufacturing</b></div>
+    <div class="app-card"><div class="app-symbol">A</div><b>Accounting</b></div>
+    <div class="app-card"><div class="app-symbol">POS</div><b>Point of Sale</b></div>
+    <div class="app-card"><div class="app-symbol">HR</div><b>Employees &amp; HR</b></div>
+    <div class="app-card"><div class="app-symbol">W</div><b>Website</b></div>
+    <div class="app-card"><div class="app-symbol">E</div><b>eCommerce</b></div>
+    <div class="app-card"><div class="app-symbol">PR</div><b>Projects</b></div>
+    <div class="app-card"><div class="app-symbol">H</div><b>Helpdesk</b></div>
+    <div class="app-card"><div class="app-symbol">MK</div><b>Marketing</b></div>
+    <div class="app-card"><div class="app-symbol">R</div><b>Rental</b></div>
+    <div class="app-card"><div class="app-symbol">FS</div><b>Field Service</b></div>
+    <div class="app-card"><div class="app-symbol">AI</div><b>AI Assistant</b></div>
   </div>
-</section>
+</div></section>
 
-<!-- ══════════════ FAQ ══════════════ -->
-<section class="oc_sec oc_faq" id="oc_faq" style="background:var(--bg)">
-  <div class="oc_sec_in">
-    <div class="oc_eyebrow">FAQ</div>
-    <h2 class="oc_h2">Frequently asked <em>questions</em></h2>
-    <p class="oc_lead">Everything you need to know before getting started. Can't find your answer? Talk to our team.</p>
-    <div class="oc_faq_list">
-      <div class="oc_faq_item oc_reveal">
-        <button class="oc_faq_q" type="button">
-          <span>Can I migrate my existing Odoo database?</span>
-          <span class="oc_faq_chev"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg></span>
-        </button>
-        <div class="oc_faq_a"><p>Yes. Upload your existing database dump during project creation and our platform restores it automatically, keeping your data, users and customizations intact.</p></div>
-      </div>
-      <div class="oc_faq_item oc_reveal">
-        <button class="oc_faq_q" type="button">
-          <span>What happens if I exceed my plan's storage or branches?</span>
-          <span class="oc_faq_chev"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg></span>
-        </button>
-        <div class="oc_faq_a"><p>We'll notify you before any limit is reached. You can upgrade your plan instantly from the dashboard &#8212; there's no downtime or manual migration required.</p></div>
-      </div>
-      <div class="oc_faq_item oc_reveal">
-        <button class="oc_faq_q" type="button">
-          <span>Is my data backed up and secure?</span>
-          <span class="oc_faq_chev"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg></span>
-        </button>
-        <div class="oc_faq_a"><p>Every instance gets encrypted daily backups with point-in-time restore, isolated databases per client, and automatic SSL on every subdomain and custom domain.</p></div>
-      </div>
-      <div class="oc_faq_item oc_reveal">
-        <button class="oc_faq_q" type="button">
-          <span>Can I connect WhatsApp, Stripe or my own AI tools?</span>
-          <span class="oc_faq_chev"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg></span>
-        </button>
-        <div class="oc_faq_a"><p>Yes. My Odoo ships with ready-made connections for messaging, payments and automation platforms, plus an AI Assistant integration for smart, no-code workflows.</p></div>
-      </div>
-      <div class="oc_faq_item oc_reveal">
-        <button class="oc_faq_q" type="button">
-          <span>Do you offer support during the free trial?</span>
-          <span class="oc_faq_chev"><svg viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linecap="round"><polyline points="6,9 12,15 18,9"/></svg></span>
-        </button>
-        <div class="oc_faq_a"><p>Absolutely &#8212; every trial includes full access to our support team, so you get the same help as a paying customer while you evaluate the platform.</p></div>
-      </div>
-    </div>
+<!-- ══════════════ SERVICE PACKAGES ══════════════ -->
+<section style="background:#fcfbfd"><div class="container">
+  <div class="section-head">
+    <span class="eyebrow"><i></i><span>Flexible service packages</span></span>
+    <h2>Choose the right starting point</h2>
+    <p>Final pricing depends on users, applications, data migration, customization, integrations and support requirements.</p>
   </div>
-</section>
-
-<!-- ══════════════ CTA ══════════════ -->
-<section class="oc_cta_sec">
-  <div class="oc_cta_orb"></div>
-  <div class="oc_cta_in">
-    <div class="oc_eyebrow">Get Started Today</div>
-    <h2 class="oc_h2">Ready to take your <em>Odoo to the cloud?</em></h2>
-    <p class="oc_cta_p">Try free for 14 days. No credit card required. Set up your first project in less than 5 minutes.</p>
-    <div class="oc_cta_btns">
-      <a href="https://myodoo.nc/pricing" class="oc_btn_cta_p">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        Start Free &#8594;
-      </a>
-      <a href="#" class="oc_btn_cta_s">View Documentation</a>
-    </div>
-    <p class="oc_cta_note">No credit card required &#183; Cancel anytime &#183; 14-day free trial</p>
+  <div class="demo-pricing">
+    <article class="demo-price-card">
+      <span class="plan-label">Starter</span>
+      <h3>Essential Setup</h3>
+      <p>For small teams moving from spreadsheets or disconnected tools.</p>
+      <ul><li>Core Odoo applications</li><li>Basic configuration</li><li>User setup</li><li>Managed hosting</li><li>Initial training</li></ul>
+      <a class="btn btn-light" style="width:100%;margin-top:22px" href="/contact-us">Request Starter Quote</a>
+    </article>
+    <article class="demo-price-card featured">
+      <span class="plan-label">Most Popular</span>
+      <h3>Business Growth</h3>
+      <p>For growing businesses centralizing multiple departments.</p>
+      <ul><li>Multiple Odoo applications</li><li>Process configuration</li><li>Data migration support</li><li>Reports and dashboards</li><li>Training and ongoing assistance</li></ul>
+      <a class="btn btn-primary" style="width:100%;margin-top:22px" href="/contact-us">Request Business Quote</a>
+    </article>
+    <article class="demo-price-card">
+      <span class="plan-label">Enterprise</span>
+      <h3>Custom Solution</h3>
+      <p>For complex workflows, integrations and multi-company requirements.</p>
+      <ul><li>Advanced customization</li><li>Third-party integrations</li><li>Multi-company setup</li><li>Priority implementation support</li><li>Long-term optimization roadmap</li></ul>
+      <a class="btn btn-light" style="width:100%;margin-top:22px" href="/contact-us">Request Enterprise Quote</a>
+    </article>
   </div>
-</section>
+  <div class="important-note">Demo pricing is intentionally presented as service packages. Exact commercial pricing and technical limits should be finalized before the production website goes live.</div>
+</div></section>
 
-<!-- ══════════════ FOOTER ══════════════ -->
-<footer class="oc_footer">
-  <div class="oc_footer_grid">
-    <div class="oc_footer_brand">
-      <a href="/saas" class="oc_logo">
-        <div class="oc_logo_mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-        <span class="oc_logo_name" style="color:white">My<span> Odoo</span></span>
-      </a>
-      <p>My Odoo &#8212; The professional cloud platform for Odoo. Deploy, manage and scale your ERP instances with confidence.</p>
-    </div>
-    <div class="oc_footer_col">
-      <h5>Product</h5>
-      <ul>
-        <li><a href="#oc_features">Features</a></li>
-        <li><a href="#oc_integrations">Integrations</a></li>
-        <li><a href="#oc_pricing">Pricing</a></li>
-        <li><a href="#oc_how">How It Works</a></li>
-        <li><a href="#">Security</a></li>
-        <li><a href="#">Roadmap</a></li>
-      </ul>
-    </div>
-    <div class="oc_footer_col">
-      <h5>Resources</h5>
-      <ul>
-        <li><a href="#">Documentation</a></li>
-        <li><a href="#">Quick Guides</a></li>
-        <li><a href="#">API Reference</a></li>
-        <li><a href="#oc_faq">FAQ</a></li>
-        <li><a href="#">Blog</a></li>
-        <li><a href="#">System Status</a></li>
-      </ul>
-    </div>
-    <div class="oc_footer_col">
-      <h5>Company</h5>
-      <ul>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Partners</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">Support</a></li>
-        <li><a href="#">Privacy</a></li>
-        <li><a href="#">Terms</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="oc_footer_bot">
-    <span>&#169; 2026 My Odoo. All rights reserved.</span>
-    <span class="oc_status_dot">All systems operational</span>
-    <div class="oc_footer_links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
-      <a href="#">Cookies</a>
-    </div>
-  </div>
-</footer>
+</main>
 
-<!-- ══════════════ JS ══════════════ -->
-<script>
-(function(){
-  // Scroll reveal
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){ e.target.classList.add('oc_in'); io.unobserve(e.target); }
-    });
-  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.oc_reveal,.oc_reveal_r').forEach(function(el){ io.observe(el); });
+<t t-call="website_saas_landing.mo_cta"/>
+<t t-call="website_saas_landing.mo_footer"/>
 
-  // Dashboard 3D tilt
-  var frame = document.querySelector('.oc_dash_frame');
-  if(frame){
-    frame.addEventListener('mousemove',function(e){
-      var r = this.getBoundingClientRect();
-      var x = (e.clientX - r.left)/r.width - 0.5;
-      var y = (e.clientY - r.top)/r.height - 0.5;
-      this.style.transform = 'perspective(1200px) rotateY('+(x*10)+'deg) rotateX('+(-y*5)+'deg) scale(1)';
-    });
-    frame.addEventListener('mouseleave',function(){
-      this.style.transform = 'perspective(1200px) rotateY(-6deg) rotateX(3deg) scale(.97)';
-    });
-  }
-
-  // Animated stat counters
-  var counters = document.querySelectorAll('.oc_counter_n');
-  var counterIO = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(!entry.isIntersecting) return;
-      counterIO.unobserve(entry.target);
-      var el = entry.target;
-      var target = parseFloat(el.getAttribute('data-target'));
-      var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
-      var suffix = el.getAttribute('data-suffix') || '';
-      var duration = 1400;
-      var start = null;
-      function step(ts){
-        if(!start) start = ts;
-        var progress = Math.min((ts - start) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = (target * eased).toFixed(decimals) + suffix;
-        if(progress &lt; 1){ requestAnimationFrame(step); }
-      }
-      requestAnimationFrame(step);
-    });
-  },{threshold:0.4});
-  counters.forEach(function(el){ counterIO.observe(el); });
-
-  // FAQ accordion
-  document.querySelectorAll('.oc_faq_q').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var item = this.closest('.oc_faq_item');
-      var wasOpen = item.classList.contains('oc_open');
-      document.querySelectorAll('.oc_faq_item.oc_open').forEach(function(i){ i.classList.remove('oc_open'); });
-      if(!wasOpen){ item.classList.add('oc_open'); }
-    });
-  });
-
-  // Smooth scroll for anchor links (offset 68px for fixed nav)
-  document.querySelectorAll('.oc_page a[href^="#"]').forEach(function(a){
-    a.addEventListener('click',function(e){
-      var id = this.getAttribute('href').slice(1);
-      var el = document.getElementById(id);
-      if(el){
-        e.preventDefault();
-        var top = el.getBoundingClientRect().top + window.scrollY - 72;
-        window.scrollTo({top:top,behavior:'smooth'});
-      }
-    });
-  });
-})();
-</script>
-
-</div><!-- /oc_page -->
-</div><!-- /wrap -->
+</div>
+</div>
 </t>
 </t>
-</field>
+  </field>
 </record>
 
 </data>

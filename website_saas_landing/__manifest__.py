@@ -36,7 +36,11 @@
     'data': [
         'views/saas_header.xml',
         'views/auth_pages.xml',
+        'views/saas_shared_templates.xml',
         'views/saas_landing_template.xml',
+        'views/saas_about_page.xml',
+        'views/saas_services_page.xml',
+        'views/saas_contact_page.xml',
     ],
     'assets': {
         'web.assets_frontend': [

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-<data noupdate="1">
+<data>
 
 <!-- Shared CTA band — reused by Home, About, Services, Contact Us -->
 <template id="mo_cta" name="My Odoo NC Shared CTA">

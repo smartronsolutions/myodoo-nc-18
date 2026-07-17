@@ -9,7 +9,6 @@
   <field name="inherit_id" ref="website.layout"/>
   <field name="type">qweb</field>
   <field name="arch" type="xml">
-
     <xpath expr="//header" position="before">
 
 <style>
@@ -136,12 +135,9 @@
 </script>
 
     </xpath>
-
-    <!-- Hide Odoo's native header on all pages -->
     <xpath expr="//header" position="attributes">
       <attribute name="style">display:none!important</attribute>
     </xpath>
-
   </field>
 </record>
 

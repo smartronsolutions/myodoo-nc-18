@@ -241,7 +241,7 @@
 /* Login, signup and reset-password views. */
 @media (max-width: 991px) {
   .mo_auth_shell {
-    min-height: 100vh !important;
+    min-height: calc(100vh - 70px) !important;
   }
   .mo_auth_form_col {
     flex: 1 1 100% !important;

@@ -90,7 +90,7 @@ html:has(.oe_website_login_container) .o_website_header {
   display:none !important;
 }
 html:has(.oe_website_login_container) #wrapwrap > main {
-  padding-top:72px !important;
+  padding-top:0 !important;
   margin-top:0 !important;
 }
 html:has(.oe_website_login_container) body,
@@ -100,7 +100,9 @@ html:has(.oe_website_login_container) body.bg-100 {
 
 .mo_auth_shell {
   display:flex;
-  min-height:calc(100vh - 72px);
+  width:100%;
+  min-height:calc(100vh - 78px);
+  margin:0;
   font-family:'Inter',system-ui,sans-serif;
 }
 
@@ -202,8 +204,8 @@ html:has(.oe_website_login_container) body.bg-100 {
 .oe_website_login_container .form-control::placeholder { color:#94A3B8 !important; }
 .oe_website_login_container .form-control:focus {
   background-color:#fff !important;
-  border-color:#7C3AED !important;
-  box-shadow:0 0 0 4px rgba(124,58,237,.12) !important;
+  border-color:#714B67 !important;
+  box-shadow:0 0 0 4px rgba(113,75,103,.12) !important;
   outline:none !important;
 }
 
@@ -249,26 +251,26 @@ html:has(.oe_website_login_container) body.bg-100 {
   border:0 !important;
   border-radius:12px !important;
   color:#fff !important;
-  background:linear-gradient(135deg,#7C3AED 0%,#8B5CF6 52%,#017E84 100%) !important;
+  background:linear-gradient(135deg,#714B67 0%,#8C6280 55%,#4F78FF 100%) !important;
   font-weight:700 !important;
   font-size:15px !important;
-  box-shadow:0 12px 30px rgba(124,58,237,.28) !important;
+  box-shadow:0 12px 30px rgba(113,75,103,.28) !important;
   transition:transform .2s,box-shadow .2s,filter .2s !important;
 }
 .oe_website_login_container .btn-primary:hover {
   transform:translateY(-2px) !important;
   filter:brightness(1.06) !important;
-  box-shadow:0 16px 38px rgba(124,58,237,.38) !important;
+  box-shadow:0 16px 38px rgba(113,75,103,.38) !important;
 }
 
 .oe_website_login_container a,
 .oe_website_login_container .btn-link {
-  color:#7C3AED !important;
+  color:#714B67 !important;
   font-weight:600 !important;
   text-decoration:none !important;
 }
 .oe_website_login_container a:hover,
-.oe_website_login_container .btn-link:hover { color:#5B21B6 !important; text-decoration:underline !important; }
+.oe_website_login_container .btn-link:hover { color:#57384F !important; text-decoration:underline !important; }
 
 .oe_website_login_container .alert {
   border-radius:12px !important;
@@ -308,7 +310,7 @@ html:has(.oe_website_login_container) body.bg-100 {
   font-size:12.5px;
   color:#94A3B8;
 }
-.mo_auth_foot a { color:#7C3AED !important; font-weight:600 !important; }
+.mo_auth_foot a { color:#714B67 !important; font-weight:600 !important; }
 
 /* ── RIGHT: BRANDING COLUMN ── */
 .mo_auth_brand_col {
@@ -322,9 +324,9 @@ html:has(.oe_website_login_container) body.bg-100 {
   padding:64px 7%;
   color:#fff;
   background:
-    radial-gradient(ellipse 60% 50% at 18% 10%, rgba(139,92,246,.4) 0%, transparent 58%),
-    radial-gradient(ellipse 55% 45% at 88% 88%, rgba(1,126,132,.32) 0%, transparent 58%),
-    linear-gradient(160deg,#0F172A 0%,#1E1040 55%,#07111F 100%);
+    radial-gradient(ellipse 60% 50% at 18% 10%, rgba(140,98,128,.48) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 45% at 88% 88%, rgba(79,120,255,.28) 0%, transparent 58%),
+    linear-gradient(160deg,#2F2630 0%,#57384F 55%,#17202A 100%);
   animation:slideInRight .6s ease both;
 }
 .mo_auth_brand_grid {
@@ -365,7 +367,7 @@ html:has(.oe_website_login_container) body.bg-100 {
 .mo_auth_headline em {
   font-style:italic;
   font-weight:700;
-  background:linear-gradient(135deg,#A78BFA,#5EEAD4);
+  background:linear-gradient(135deg,#D7BFD1,#7F9BFF);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
   background-clip:text;
@@ -396,7 +398,7 @@ html:has(.oe_website_login_container) body.bg-100 {
   align-items:center;
   justify-content:center;
   font-weight:800;
-  background:linear-gradient(135deg,#7C3AED,#017E84);
+  background:linear-gradient(135deg,#714B67,#4F78FF);
 }
 .mo_auth_testi_meta { display:flex; flex-direction:column; line-height:1.35; font-size:.82rem; }
 .mo_auth_testi_meta strong { color:#fff; }
@@ -428,8 +430,8 @@ html:has(.oe_website_login_container) body.bg-100 {
   display:flex;
   align-items:center;
   justify-content:center;
-  background:linear-gradient(135deg,#7C3AED,#017E84);
-  box-shadow:0 4px 14px rgba(124,58,237,.4);
+  background:linear-gradient(135deg,#714B67,#4F78FF);
+  box-shadow:0 4px 14px rgba(113,75,103,.4);
 }
 
 @keyframes fadeInUp {

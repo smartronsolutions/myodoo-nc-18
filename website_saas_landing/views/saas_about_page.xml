@@ -14,7 +14,7 @@
 <t t-set="additional_title">My Odoo NC — About</t>
 <t t-set="no_footer" t-value="true"/>
 <div id="wrap">
-<div class="mo_site">
+<div class="mo_site mo_about_page">
 <div class="top-glow"></div><div class="top-glow two"></div>
 
 <main>

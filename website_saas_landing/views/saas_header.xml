@@ -26,9 +26,53 @@
 #wrapwrap > header,
 #wrapwrap > footer,
 .o_main_navbar { display:none !important; }
+
+/* Odoo/Bootstrap compatibility and responsive safeguards. */
+.mo_site{direction:ltr!important;text-align:left}
+.mo_header_shell{position:sticky;top:0;z-index:1050;width:100%}
+.mo_header_shell > header{display:block!important;position:relative;top:auto;width:100%}
+.mo_site .container{max-width:1160px!important;padding-left:0!important;padding-right:0!important}
+.mo_site .hero-grid > *,.mo_site .contact-grid > *,.mo_site .feature-band > *{min-width:0}
+.mo_site img{max-width:100%;height:auto}
+@media(min-width:901px){
+  .mo_site .hero-grid{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr)!important}
+  .mo_site .feature-band{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .mo_site .contact-grid{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important}
+  .mo_site .service-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .mo_site .cards,.mo_site .demo-pricing{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:900px){
+  .mo_site .container{width:calc(100% - 40px)!important}
+  .mo_site .hero-grid{grid-template-columns:1fr!important;gap:34px!important}
+  .mo_site .hero-grid > div:first-child{width:100%;max-width:760px;margin:0 auto}
+  .mo_site .visual{width:100%;max-width:680px;margin:0 auto}
+  .mo_site .feature-band,.mo_site .contact-grid{grid-template-columns:1fr!important}
+  .mo_site .service-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:760px){
+  .mo_site section{padding:58px 0!important}
+  .mo_site .page-hero{padding:50px 0 34px!important}
+  .mo_site h1{font-size:clamp(38px,11vw,54px)!important;letter-spacing:-2.2px!important}
+  .mo_site .section-head h2{font-size:clamp(30px,8vw,42px)!important}
+  .mo_site .cards,.mo_site .detail-grid,.mo_site .testimonial-grid,.mo_site .demo-pricing,
+  .mo_site .why-grid,.mo_site .industry-grid{grid-template-columns:1fr!important}
+  .mo_site .integration-grid,.mo_site .apps-grid,.mo_site .stats-grid,
+  .mo_site .process-grid,.mo_site .roadmap{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .mo_site .footer-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:520px){
+  .mo_site .container{width:calc(100% - 26px)!important}
+  .mo_site .hero{padding:42px 0 48px!important}
+  .mo_site .visual{min-height:390px!important}
+  .mo_site .dashboard{left:4px!important;right:4px!important}
+  .mo_site .integration-grid,.mo_site .apps-grid,.mo_site .stats-grid,
+  .mo_site .process-grid,.mo_site .roadmap,.mo_site .footer-grid{grid-template-columns:1fr!important}
+  .mo_site .cta-box{padding:28px!important}
+  .mo_site .form,.mo_site .contact-info,.mo_site .service-card{padding:24px!important}
+}
 </style>
 
-<div class="mo_site">
+<div class="mo_site mo_header_shell">
 <header>
   <div class="container nav">
     <a class="brand" href="/saas">
@@ -134,9 +178,6 @@
 })();
 </script>
 
-    </xpath>
-    <xpath expr="//header" position="attributes">
-      <attribute name="style">display:none!important</attribute>
     </xpath>
   </field>
 </record>

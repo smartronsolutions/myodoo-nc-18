@@ -14,7 +14,7 @@
 <t t-set="additional_title">My Odoo NC — Services</t>
 <t t-set="no_footer" t-value="true"/>
 <div id="wrap">
-<div class="mo_site">
+<div class="mo_site mo_services_page">
 <div class="top-glow"></div><div class="top-glow two"></div>
 
 <main><section class="page-hero"><div class="container"><span class="eyebrow"><i></i><span data-i18n="services_badge">Odoo solutions</span></span><h1 data-i18n-html="services_title">Services designed around<br/><span class="gradient-text">your real operations</span></h1><p data-i18n="services_intro">From first consultation to daily support, we help you deploy a practical business platform—not just another piece of software.</p></div></section>

@@ -14,7 +14,7 @@
 <t t-set="additional_title">My Odoo NC — Contact Us</t>
 <t t-set="no_footer" t-value="true"/>
 <div id="wrap">
-<div class="mo_site">
+<div class="mo_site mo_contact_page">
 <div class="top-glow"></div><div class="top-glow two"></div>
 
 <main><section class="page-hero"><div class="container"><span class="eyebrow"><i></i><span data-i18n="contact_badge">Let’s talk</span></span><h1 data-i18n-html="contact_title">Tell us what you want<br/><span class="gradient-text">to improve</span></h1><p data-i18n="contact_intro">Share your current challenges and we will help you identify the right Odoo starting point.</p></div></section>

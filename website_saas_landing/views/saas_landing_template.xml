@@ -3,7 +3,7 @@
 <data noupdate="1">
 
 <record id="saas_landing_page" model="website.page">
-  <field name="name">SaaS Landing</field>
+  <field name="name">Home (My Odoo NC)</field>
   <field name="url">/saas</field>
   <field name="type">qweb</field>
   <field name="is_published">True</field>

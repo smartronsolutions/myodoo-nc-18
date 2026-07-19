@@ -926,12 +926,13 @@ class OdooInstance(models.Model):
 
     @api.model
     def cron_revoke_instance(self):
-        instances = self.search([('state', 'in', ('deploy', 'suspend'))])
-        for instance in instances:
-            if instance.expiration_date:
-                delta_days = (fields.Date.today() - instance.expiration_date).days
-                if delta_days > instance.company_id.revoke_instance_day:
-                    instance._action_cancel()
+        """Do not automatically delete expired instance data.
+
+        Instance cancellation removes the complete instance directory, including
+        docker-compose.yml. Revocation must therefore remain a manual action.
+        """
+        _logger.info("Automatic instance revocation is disabled; no instance data was deleted.")
+        return True
 
     @api.model
     def _prepare_instance_val_to_create(self, data):

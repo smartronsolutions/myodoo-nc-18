@@ -555,6 +555,9 @@ class OdooInstance(models.Model):
 
     def action_redeploy_config(self):
         for r in self:
+            addons_config = r.config_ids.filtered(lambda config: config.name == 'addons_path')
+            if addons_config:
+                addons_config.write({'value': r._get_addons_path()})
             r.pserver_id._redeploy_odoo_instance_config(r)
 
     def action_redeploy_nginx(self):
@@ -654,20 +657,25 @@ class OdooInstance(models.Model):
         self.config_ids.unlink()
         return self.env['saas.odoo.instance.config'].create(conf_vals_list)
     
+    def _get_addons_path(self):
+        """Return addon mount paths in the same order as the server lines."""
+        self.ensure_one()
+        addons_path = [
+            '/mnt/standard-extra-addons/' if index == 0
+            else '/mnt/standard-extra-addons-%d/' % (index + 1)
+            for index, addon in enumerate(self.odoo_server_id.extra_addon_ids)
+            if addon.source_path
+        ]
+        addons_path.append('/mnt/extra-addons')
+        addons_path += self.custom_addon_ids.mapped('container_path')
+        return ','.join(dict.fromkeys(filter(None, addons_path)))
+
     def _prepare_conf_vals_list(self):
         conf_vals_list = []
         for conf in self.odoo_version_id.config_ids:
             value = conf.value
             if conf.name == 'addons_path':
-                addons_path = []
-                if not self.odoo_server_id.extra_addon_ids and not self.custom_addon_ids:
-                    addons_path = ['/mnt/extra-addons']
-                else:
-                    if self.odoo_server_id.extra_addon_ids:
-                        addons_path += self.odoo_server_id.extra_addon_ids.mapped('docker_container_path')
-                    if self.custom_addon_ids:
-                        addons_path += self.custom_addon_ids.mapped('container_path')
-                value = ','.join(addons_path)
+                value = self._get_addons_path()
             elif conf.name == 'admin_passwd':
                 value = ''.join(random.choice(string.ascii_lowercase) for i in range(32))
             elif conf.name == 'data_dir':

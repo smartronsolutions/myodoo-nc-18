@@ -18,6 +18,10 @@ class OdooInstanceBackup(models.Model):
     file_size = fields.Float(string="File Size (MB)")
     active = fields.Boolean(string="Active", default=True)
     description = fields.Text(string="Description")
+    container_backup_id = fields.Many2one(
+        'saas.odoo.instance.container.backup', string='Container Backup', readonly=True,
+        ondelete='set null'
+    )
     format = fields.Selection([
         ('zip', 'zip (includes filestore)'),
         ('dump', 'pg_dump (without filestore)')
@@ -137,3 +141,9 @@ class OdooInstanceBackup(models.Model):
             'target': '_blank',
             'url': '/saas_backup/download/%s' % self.id,
         }
+
+    def action_download_container_backup(self):
+        self.ensure_one()
+        if not self.container_backup_id:
+            raise UserError(_("No container backup is linked to this database backup."))
+        return self.container_backup_id.action_download()

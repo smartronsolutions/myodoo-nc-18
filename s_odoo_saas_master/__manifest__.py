@@ -1,6 +1,6 @@
 {
     'name': 'Odoo SaaS Master',
-    'version': '18.0.0.3',
+    'version': '18.0.0.5',
     'author': 'SkyERP',
     'category': 'Odoo SaaS',
     'sequence': 15,

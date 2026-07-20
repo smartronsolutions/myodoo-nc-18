@@ -268,6 +268,16 @@
 					            </list>
                     		</field>
                     	</page>
+					<page name="container_backup" string="Container Backups">
+						<field name="container_backup_ids">
+							<list create="0" edit="0">
+								<field name="name"/>
+								<field name="datetime"/>
+								<field name="file_size"/>
+								<button name="action_download" string="Download Container Backup" type="object" icon="fa-download"/>
+							</list>
+						</field>
+					</page>
                     	<page name="containers" string="Containers">
                     		<field name="docker_container_ids">
                     			<list>

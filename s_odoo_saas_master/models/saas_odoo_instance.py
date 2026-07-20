@@ -51,6 +51,9 @@ class OdooInstance(models.Model):
     installed_app_count = fields.Integer(string="Installed Apps Count", compute='_compute_installed_app_count')
     backup_limit = fields.Integer(string='Backup Limit', required=True, default=_default_backup_limit)
     backup_ids = fields.One2many('saas.odoo.instance.backup', 'instance_id', string='Backups')
+    container_backup_ids = fields.One2many(
+        'saas.odoo.instance.container.backup', 'instance_id', string='Container Backups'
+    )
     backup_count = fields.Integer(string="Backup Count", compute='_compute_backup_count')
     extra_addon_ids = fields.One2many('saas.odoo.instance.extra.addon', 'instance_id', string='Extra Addons')
     custom_addon_ids = fields.One2many('saas.odoo.instance.custom.addon', 'instance_id', string='Custom Addons',
@@ -516,9 +519,11 @@ class OdooInstance(models.Model):
                         "Warning: no filestore files were found on the server when this backup was taken "
                         "(0 attachments). Images, documents and the company logo will not be restorable from this backup."
                     )
-                self.env['saas.odoo.instance.backup'].sudo().create(backup_vals)
+                database_backup = self.env['saas.odoo.instance.backup'].sudo().create(backup_vals)
                 # pylint: disable=invalid-commit
                 self.env.cr.commit()
+                container_backup = r.action_container_backup()
+                database_backup.sudo().container_backup_id = container_backup[:1]
             except UserError:
                 raise
             except PermissionError:
@@ -529,6 +534,43 @@ class OdooInstance(models.Model):
             except Exception as e:
                 error = str(e) or repr(e)
                 raise UserError(_("Database backup error: %s") % error)
+
+    def action_container_backup(self):
+        """Archive the complete remote /home/<instance> directory."""
+        backup_dir = '/var/lib/odoo/container-backup'
+        try:
+            os.makedirs(backup_dir, mode=0o755, exist_ok=True)
+        except PermissionError:
+            raise UserError(_(
+                "Cannot create container backup directory '%s'. Ensure it is writable by Odoo."
+            ) % backup_dir)
+
+        user_root = self.env.ref('base.user_root')
+        container_backups = self.env['saas.odoo.instance.container.backup']
+        for instance in self:
+            ts = fields.Datetime.context_timestamp(
+                instance.with_context(tz=user_root.tz), datetime.utcnow()
+            )
+            filename = '%s_container_%s.zip' % (
+                instance.technical_name.strip(), ts.strftime('%Y-%m-%d_%H-%M-%S')
+            )
+            file_path = os.path.join(backup_dir, filename)
+            try:
+                instance.pserver_id._create_odoo_instance_container_backup(instance, file_path)
+            except Exception:
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                raise
+            container_backups |= self.env['saas.odoo.instance.container.backup'].sudo().create({
+                'instance_id': instance.id,
+                'name': filename,
+                'datetime': fields.Datetime.to_string(ts),
+                'file_path': file_path,
+                'file_size': os.path.getsize(file_path) / 1e6,
+            })
+            # Keep the record visible if another instance fails later in the cron.
+            self.env.cr.commit()
+        return container_backups
 
     def action_restart(self):
         self.docker_container_ids.action_restart()
@@ -837,6 +879,16 @@ class OdooInstance(models.Model):
             backups_to_unlink |= backups[ins.backup_limit:]
         if backups_to_unlink:
             backups_to_unlink.unlink()
+        container_backups_to_unlink = self.env['saas.odoo.instance.container.backup']
+        container_instances = self.search([]).filtered(
+            lambda i: i.backup_limit and len(i.container_backup_ids) > i.backup_limit
+        )
+        for instance in container_instances:
+            container_backups_to_unlink |= instance.container_backup_ids.sorted(
+                key='datetime', reverse=True
+            )[instance.backup_limit:]
+        if container_backups_to_unlink:
+            container_backups_to_unlink.unlink()
 
     def action_get_active_users(self):
         results = {}

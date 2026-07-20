@@ -469,6 +469,43 @@ class PServer(models.Model):
                     _logger.warning("Could not remove temporary backup files for %s", remote_filepath)
             ssh.close()
 
+    def _create_odoo_instance_container_backup(self, instance, local_filepath):
+        """Zip the full instance directory remotely and download it to Odoo."""
+        ssh = self._connect_or_raise()
+        remote_filepath = '/tmp/%s' % os.path.basename(local_filepath)
+        instance_dir = '/home/%s' % instance.technical_name
+        cmd = (
+            'set -e; rm -f {archive}; '
+            'test -d {instance_dir}; '
+            'cd /home; '
+            '(zip -rq {archive} {instance_name} || '
+            'python3 -m zipfile -c {archive} {instance_name})'
+        ).format(
+            archive=shlex.quote(remote_filepath),
+            instance_dir=shlex.quote(instance_dir),
+            instance_name=shlex.quote(instance.technical_name),
+        )
+        try:
+            stdin, stdout, stderr = ssh.exec_command(cmd)
+            exit_status = stdout.channel.recv_exit_status()
+            error = stderr.read().decode().strip()
+            if exit_status:
+                raise UserError(
+                    _("Container backup packaging failed for %s. %s")
+                    % (instance.display_name, error or _("Unknown Error."))
+                )
+            sftp = ssh.open_sftp()
+            try:
+                sftp.get(remote_filepath, local_filepath)
+            finally:
+                sftp.close()
+        finally:
+            try:
+                self._exec_cmd('rm -f %s' % shlex.quote(remote_filepath), ssh)
+            except Exception:
+                _logger.warning("Could not remove container backup temp file %s", remote_filepath)
+            ssh.close()
+
     def _restore_odoo_instance_backup(self, instance, backup):
         ssh = self._connect_or_raise()
         remote_dir = '/tmp/saas_odoo_restores'

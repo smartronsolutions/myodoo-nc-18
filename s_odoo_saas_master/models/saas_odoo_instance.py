@@ -430,6 +430,37 @@ class OdooInstance(models.Model):
         action['context'] = {'default_instance_id': self.id}
         return action
 
+    def _open_instance_tool_wizard(self, xml_id, **defaults):
+        self.ensure_one()
+        if not self.env.user.has_group('s_odoo_saas_master.group_odoo_saas_master'):
+            raise UserError(_('Only SaaS Master users can access container tools.'))
+        if self.state != 'deploy' or self.operation_state != 'run':
+            raise UserError(_('The Odoo instance must be deployed and running.'))
+        action = self.env['ir.actions.act_window']._for_xml_id(xml_id)
+        action['context'] = dict(
+            self.env.context,
+            default_instance_id=self.id,
+            **defaults,
+        )
+        return action
+
+    def action_open_db_terminal(self):
+        return self._open_instance_tool_wizard(
+            's_odoo_saas_master.saas_odoo_instance_terminal_wizard_action',
+            default_terminal_type='odoo',
+        )
+
+    def action_open_pg_terminal(self):
+        return self._open_instance_tool_wizard(
+            's_odoo_saas_master.saas_odoo_instance_terminal_wizard_action',
+            default_terminal_type='psql',
+        )
+
+    def action_open_python_package_wizard(self):
+        return self._open_instance_tool_wizard(
+            's_odoo_saas_master.saas_odoo_instance_python_package_wizard_action'
+        )
+
     def action_deploy(self):
         for r in self:
             if r.use_template and r.template_instance_id and r.template_instance_id.state != 'deploy':

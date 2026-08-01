@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="saas_odoo_instance_terminal_wizard_form" model="ir.ui.view">
+        <field name="name">saas.odoo.instance.terminal.wizard.form</field>
+        <field name="model">saas.odoo.instance.terminal.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Container Terminal">
+                <group>
+                    <field name="instance_id"/>
+                    <field name="terminal_type"/>
+                    <field name="command" placeholder="Enter a shell command or SQL query..."/>
+                    <field name="output" widget="text" nolabel="1" class="font-monospace"
+                        placeholder="Command output will appear here..."/>
+                    <field name="exit_code" invisible="not output"/>
+                </group>
+                <footer>
+                    <button name="action_execute" string="Execute" type="object" class="oe_highlight"/>
+                    <button name="action_clear" string="Clear Output" type="object" invisible="not output"/>
+                    <button string="Close" special="cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="saas_odoo_instance_terminal_wizard_action" model="ir.actions.act_window">
+        <field name="name">Container Terminal</field>
+        <field name="res_model">saas.odoo.instance.terminal.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="saas_odoo_instance_terminal_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <record id="saas_odoo_instance_python_package_wizard_form" model="ir.ui.view">
+        <field name="name">saas.odoo.instance.python.package.wizard.form</field>
+        <field name="model">saas.odoo.instance.python.package.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Install Python Packages">
+                <group>
+                    <field name="instance_id"/>
+                    <field name="package_names" placeholder="requests&#10;psycopg2-binary==2.9.10"/>
+                    <field name="output" widget="text" nolabel="1" class="font-monospace" invisible="not output"/>
+                    <field name="exit_code" invisible="not output"/>
+                </group>
+                <div class="alert alert-warning" role="alert">
+                    Packages are installed in the live Odoo container. Recreating that container from its image may remove them.
+                </div>
+                <footer>
+                    <button name="action_install" string="Install Packages" type="object" class="oe_highlight"/>
+                    <button string="Close" special="cancel" class="oe_link"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="saas_odoo_instance_python_package_wizard_action" model="ir.actions.act_window">
+        <field name="name">Install Python Packages</field>
+        <field name="res_model">saas.odoo.instance.python.package.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="saas_odoo_instance_python_package_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>

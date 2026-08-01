@@ -39,7 +39,16 @@
                 		groups="sales_team.group_sale_salesman"
                 		invisible="state != 'deploy' or not partner_id or not expiration_date or not has_extra"/>
                 	<button string="Backup" type="object" name="action_backup" invisible="operation_state != 'run' or state != 'deploy'"/>
-            		<button string="Update/Install Module" type="object" name="action_open_upgrade_module_wizard" invisible="operation_state != 'run' or state != 'deploy'"/>
+                	<button string="Update/Install Module" type="object" name="action_open_upgrade_module_wizard" invisible="operation_state != 'run' or state != 'deploy'"/>
+                    <button string="Open DB Terminal" type="object" name="action_open_db_terminal"
+                        icon="fa-terminal" groups="s_odoo_saas_master.group_odoo_saas_master"
+                        invisible="operation_state != 'run' or state != 'deploy'"/>
+                    <button string="Open PG Terminal" type="object" name="action_open_pg_terminal"
+                        icon="fa-database" groups="s_odoo_saas_master.group_odoo_saas_master"
+                        invisible="operation_state != 'run' or state != 'deploy'"/>
+                    <button string="Install Python Package" type="object" name="action_open_python_package_wizard"
+                        icon="fa-download" groups="s_odoo_saas_master.group_odoo_saas_master"
+                        invisible="operation_state != 'run' or state != 'deploy'"/>
                 	<button string="Delete" type="object" name="action_cancel" invisible="state in ['draft', 'cancel']" class="btn-danger"/>
                 	<field name="state" widget="statusbar" />
                 </header>

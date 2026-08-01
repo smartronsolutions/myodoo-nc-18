@@ -102,6 +102,11 @@ class InstanceTerminalWizard(models.TransientModel):
             raise ValidationError(_('Invalid psql command: %s') % exc) from exc
         if not parts or parts[0].rsplit('/', 1)[-1] != 'psql':
             return False
+        # Informational/listing invocations run in the container shell and must
+        # not be mistaken for an interactive database connection request.
+        standalone_options = {'--version', '-V', '--help', '-?', '--list', '-l'}
+        if any(part in standalone_options for part in parts[1:]):
+            return False
         database = self.current_database or self.instance_id.db_name or 'postgres'
         user = 'odoo'
         index = 1
@@ -279,7 +284,10 @@ class InstancePythonPackageWizard(models.TransientModel):
         package_args = ' '.join(shlex.quote(package) for package in packages)
         pip_base = 'python3 -m pip install --disable-pip-version-check --no-input'
         install_script = (
-            '%s %s || %s --break-system-packages %s'
+            'if python3 -m pip install --help 2>/dev/null '
+            '| grep -q -- --break-system-packages; then '
+            '%s --break-system-packages %s; '
+            'else %s %s; fi'
             % (pip_base, package_args, pip_base, package_args)
         )
         remote_command = 'docker exec -u 0 -i %s /bin/sh -lc %s' % (

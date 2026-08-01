@@ -198,3 +198,36 @@ class InstancePythonPackageWizard(models.TransientModel):
             'res_id': self.id,
             'target': 'new',
         }
+
+
+class InstanceOdooLogWizard(models.TransientModel):
+    _name = 'saas.odoo.instance.odoo.log.wizard'
+    _inherit = 'saas.odoo.instance.tool.wizard.mixin'
+    _description = 'SaaS Odoo Instance Live Log Viewer'
+
+    instance_id = fields.Many2one(
+        'saas.odoo.instance', string='Odoo Instance', required=True, readonly=True,
+        ondelete='cascade'
+    )
+    log_output = fields.Text(string='Odoo Logs', readonly=True)
+
+    def get_live_logs(self):
+        """Return the latest 50 lines for the auto-refreshing backend widget."""
+        self._check_access_and_instance()
+        container_name = self._container_name('odoo')
+        log_path = '/var/log/odoo/odoo.log'
+        container_script = (
+            'if [ -r %s ]; then tail -n 50 %s; '
+            'else echo "Log file is not readable: %s"; exit 1; fi'
+        ) % (
+            shlex.quote(log_path), shlex.quote(log_path), log_path
+        )
+        remote_command = 'docker exec -i %s /bin/sh -lc %s' % (
+            shlex.quote(container_name), shlex.quote(container_script)
+        )
+        status, output = self._run_remote_command(remote_command)
+        return {
+            'output': output or _('The log file is currently empty.'),
+            'exit_code': status,
+            'updated_at': fields.Datetime.to_string(fields.Datetime.now()),
+        }

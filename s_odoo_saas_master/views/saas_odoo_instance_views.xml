@@ -49,6 +49,9 @@
                     <button string="Install Python Package" type="object" name="action_open_python_package_wizard"
                         icon="fa-download" groups="s_odoo_saas_master.group_odoo_saas_master"
                         invisible="operation_state != 'run' or state != 'deploy'"/>
+                    <button string="Odoo Logs" type="object" name="action_open_odoo_logs"
+                        icon="fa-file-text-o" groups="s_odoo_saas_master.group_odoo_saas_master"
+                        invisible="operation_state != 'run' or state != 'deploy'"/>
                 	<button string="Delete" type="object" name="action_cancel" invisible="state in ['draft', 'cancel']" class="btn-danger"/>
                 	<field name="state" widget="statusbar" />
                 </header>

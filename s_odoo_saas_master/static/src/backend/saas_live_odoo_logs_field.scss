@@ -1,0 +1,16 @@
+.o_saas_live_logs_output {
+    height: min(65vh, 650px);
+    min-height: 360px;
+    margin: 0;
+    padding: 1rem;
+    overflow: auto;
+    border: 1px solid #495057;
+    border-radius: 0.375rem;
+    background: #111827;
+    color: #d1fae5;
+    font-family: var(--font-monospace, monospace);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

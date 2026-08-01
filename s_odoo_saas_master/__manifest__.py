@@ -76,6 +76,9 @@
         'web.assets_backend': [
             's_odoo_saas_master/static/src/backend/saas_backup_restore_progress_field.js',
             's_odoo_saas_master/static/src/backend/saas_backup_restore_progress_field.xml',
+            's_odoo_saas_master/static/src/backend/saas_live_odoo_logs_field.js',
+            's_odoo_saas_master/static/src/backend/saas_live_odoo_logs_field.xml',
+            's_odoo_saas_master/static/src/backend/saas_live_odoo_logs_field.scss',
         ],
     },
     'post_init_hook': '_price_list_post_init_hook',

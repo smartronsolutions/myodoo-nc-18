@@ -461,6 +461,21 @@ class OdooInstance(models.Model):
             's_odoo_saas_master.saas_odoo_instance_python_package_wizard_action'
         )
 
+    def action_open_odoo_logs(self):
+        self.ensure_one()
+        if not self.env.user.has_group('s_odoo_saas_master.group_odoo_saas_master'):
+            raise UserError(_('Only SaaS Master users can access container tools.'))
+        if self.state != 'deploy' or self.operation_state != 'run':
+            raise UserError(_('The Odoo instance must be deployed and running.'))
+        wizard = self.env['saas.odoo.instance.odoo.log.wizard'].create({
+            'instance_id': self.id,
+        })
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            's_odoo_saas_master.saas_odoo_instance_odoo_log_wizard_action'
+        )
+        action['res_id'] = wizard.id
+        return action
+
     def action_deploy(self):
         for r in self:
             if r.use_template and r.template_instance_id and r.template_instance_id.state != 'deploy':

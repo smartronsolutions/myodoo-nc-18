@@ -445,15 +445,27 @@ class OdooInstance(models.Model):
         return action
 
     def action_open_db_terminal(self):
-        return self._open_instance_tool_wizard(
-            's_odoo_saas_master.saas_odoo_instance_terminal_wizard_action',
-            default_terminal_type='odoo',
+        return self._open_interactive_terminal(
+            'odoo',
         )
 
-    def action_open_pg_terminal(self):
-        return self._open_instance_tool_wizard(
+    def _open_interactive_terminal(self, terminal_type):
+        action = self._open_instance_tool_wizard(
             's_odoo_saas_master.saas_odoo_instance_terminal_wizard_action',
-            default_terminal_type='psql',
+        )
+        wizard = self.env['saas.odoo.instance.terminal.wizard'].create({
+            'instance_id': self.id,
+            'terminal_type': terminal_type,
+            'current_database': self.db_name or 'postgres',
+        })
+        action['res_id'] = wizard.id
+        action['context'] = dict(self.env.context)
+        action['name'] = _('PostgreSQL Terminal') if terminal_type == 'psql' else _('Odoo Docker Terminal')
+        return action
+
+    def action_open_pg_terminal(self):
+        return self._open_interactive_terminal(
+            'psql',
         )
 
     def action_open_python_package_wizard(self):

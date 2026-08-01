@@ -73,13 +73,14 @@ class InstanceTerminalWizard(models.TransientModel):
         [('odoo', 'Odoo Docker Terminal'), ('psql', 'PostgreSQL Terminal')],
         string='Terminal', required=True, readonly=True, default='odoo'
     )
-    command = fields.Text(string='Command / SQL', required=True)
+    command = fields.Text(string='Command / SQL')
     output = fields.Text(string='Terminal Output', readonly=True)
     exit_code = fields.Integer(string='Exit Code', readonly=True)
+    current_database = fields.Char(string='Current Database', readonly=True)
 
-    def action_execute(self):
+    def _execute_terminal_command(self, command):
         self._check_access_and_instance()
-        command = (self.command or '').strip()
+        command = (command or '').strip()
         if not command:
             raise ValidationError(_('Enter a command to execute.'))
 
@@ -91,7 +92,7 @@ class InstanceTerminalWizard(models.TransientModel):
             prompt = '$ '
         else:
             container_name = self._container_name('psql')
-            database = self.instance_id.db_name or 'postgres'
+            database = self.current_database or self.instance_id.db_name or 'postgres'
             remote_command = (
                 'docker exec -i -e PGPASSWORD=odoo %s '
                 'psql -X -v ON_ERROR_STOP=1 -U odoo -d %s -c %s'
@@ -101,15 +102,34 @@ class InstanceTerminalWizard(models.TransientModel):
             prompt = '%s=> ' % database
 
         status, result = self._run_remote_command(remote_command)
-        previous = (self.output or '').rstrip()
-        block = '%s%s\n%s\n[exit code: %s]' % (
-            prompt, command, result or _('Command completed without output.'), status
+        block = '%s%s\n%s' % (
+            prompt, command, result or _('Command completed without output.')
         )
+        return status, prompt, block
+
+    def execute_terminal_command(self, command):
+        """RPC endpoint used by the interactive terminal field widget."""
+        status, prompt, block = self._execute_terminal_command(command)
+        previous = (self.output or '').rstrip()
         self.write({
             'output': ('%s\n\n%s' % (previous, block)).strip(),
             'exit_code': status,
-            'command': False,
         })
+        return {
+            'block': block,
+            'exit_code': status,
+            'prompt': prompt,
+        }
+
+    def clear_terminal(self):
+        self._check_access_and_instance()
+        self.write({'output': False, 'exit_code': 0, 'command': False})
+        database = self.current_database or self.instance_id.db_name or 'postgres'
+        return {'prompt': '%s=> ' % database if self.terminal_type == 'psql' else '$ '}
+
+    def action_execute(self):
+        self.execute_terminal_command(self.command)
+        self.command = False
         return {
             'type': 'ir.actions.act_window',
             'name': _('PostgreSQL Terminal') if self.terminal_type == 'psql' else _('Odoo Docker Terminal'),
@@ -120,7 +140,7 @@ class InstanceTerminalWizard(models.TransientModel):
         }
 
     def action_clear(self):
-        self.write({'output': False, 'exit_code': 0, 'command': False})
+        self.clear_terminal()
         return {
             'type': 'ir.actions.act_window',
             'name': _('PostgreSQL Terminal') if self.terminal_type == 'psql' else _('Odoo Docker Terminal'),

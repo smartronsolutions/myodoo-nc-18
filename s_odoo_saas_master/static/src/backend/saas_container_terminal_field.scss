@@ -1,0 +1,47 @@
+.o_saas_container_terminal {
+    .o_saas_container_terminal_output {
+        height: 55vh;
+        max-height: 560px;
+        min-height: 320px;
+        margin: 0;
+        padding: 1rem;
+        overflow: auto;
+        border: 1px solid #374151;
+        border-bottom: 0;
+        border-radius: 0.375rem 0.375rem 0 0;
+        background: #0b1020;
+        color: #d1fae5;
+        font-family: var(--font-monospace, monospace);
+        font-size: 0.82rem;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .o_saas_container_terminal_input_row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid #374151;
+        border-radius: 0 0 0.375rem 0.375rem;
+        background: #111827;
+    }
+
+    .o_saas_container_terminal_prompt {
+        color: #34d399;
+        font-family: var(--font-monospace, monospace);
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .o_saas_container_terminal_input {
+        flex: 1 1 auto;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #f9fafb;
+        font-family: var(--font-monospace, monospace);
+    }
+}

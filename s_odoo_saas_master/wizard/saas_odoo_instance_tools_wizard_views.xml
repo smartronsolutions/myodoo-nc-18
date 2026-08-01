@@ -4,19 +4,17 @@
         <field name="name">saas.odoo.instance.terminal.wizard.form</field>
         <field name="model">saas.odoo.instance.terminal.wizard</field>
         <field name="arch" type="xml">
-            <form string="Container Terminal">
+            <form string="Container Terminal" create="0" edit="0">
                 <group>
-                    <field name="instance_id"/>
-                    <field name="terminal_type"/>
-                    <field name="command" placeholder="Enter a shell command or SQL query..."/>
-                    <field name="output" widget="text" nolabel="1" class="font-monospace"
-                        placeholder="Command output will appear here..."/>
-                    <field name="exit_code" invisible="not output"/>
+                    <field name="instance_id" readonly="1"/>
+                    <field name="terminal_type" readonly="1"/>
+                    <field name="current_database" readonly="1" invisible="terminal_type != 'psql'"/>
                 </group>
+                <field name="command" invisible="1"/>
+                <field name="exit_code" invisible="1"/>
+                <field name="output" widget="saas_container_terminal" nolabel="1"/>
                 <footer>
-                    <button name="action_execute" string="Execute" type="object" class="oe_highlight"/>
-                    <button name="action_clear" string="Clear Output" type="object" invisible="not output"/>
-                    <button string="Close" special="cancel" class="oe_link"/>
+                    <button string="Close" special="cancel" class="oe_highlight"/>
                 </footer>
             </form>
         </field>

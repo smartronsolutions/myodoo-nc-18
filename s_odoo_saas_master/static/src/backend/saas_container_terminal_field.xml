@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="s_odoo_saas_master.SaasContainerTerminal">
+        <div class="o_saas_container_terminal" t-on-click="_scrollAndFocus">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge text-bg-dark">CONNECTED</span>
+                <span class="text-muted">Enter to run · ↑/↓ command history · type “clear” to clear</span>
+                <span class="ms-auto" t-att-class="state.lastExitCode ? 'text-danger' : 'text-success'">
+                    Exit: <t t-esc="state.lastExitCode"/>
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-secondary" t-on-click.stop="clear"
+                    t-att-disabled="state.running">Clear</button>
+            </div>
+            <pre t-ref="terminalOutput" class="o_saas_container_terminal_output"><t t-esc="state.output"/></pre>
+            <div class="o_saas_container_terminal_input_row">
+                <span class="o_saas_container_terminal_prompt" t-esc="state.prompt"/>
+                <input t-ref="terminalInput" type="text" class="o_saas_container_terminal_input"
+                    t-model="state.command" t-on-keydown="onKeydown"
+                    t-att-placeholder="state.running ? 'Command is running…' : 'Type a command…'"
+                    t-att-disabled="state.running" autocomplete="off" spellcheck="false"/>
+                <button type="button" class="btn btn-sm btn-success" t-on-click.stop="execute"
+                    t-att-disabled="state.running || !state.command.trim()">
+                    <i class="fa" t-att-class="state.running ? 'fa-spinner fa-spin' : 'fa-play'"/> Run
+                </button>
+            </div>
+        </div>
+    </t>
+</templates>

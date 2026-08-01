@@ -457,13 +457,14 @@ class OdooInstance(models.Model):
             'instance_id': self.id,
             'terminal_type': terminal_type,
             'current_database': self.db_name or 'postgres',
+            'shell_mode': 'container',
             # Compatibility with databases where the previous wizard version
             # still has a NOT NULL command column until the module upgrade runs.
             'command': ' ',
         })
         action['res_id'] = wizard.id
         action['context'] = dict(self.env.context)
-        action['name'] = _('PostgreSQL Terminal') if terminal_type == 'psql' else _('Odoo Docker Terminal')
+        action['name'] = _('PostgreSQL Docker Terminal') if terminal_type == 'psql' else _('Odoo Docker Terminal')
         return action
 
     def action_open_pg_terminal(self):

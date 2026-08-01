@@ -8,10 +8,11 @@
                 <group>
                     <field name="instance_id" readonly="1"/>
                     <field name="terminal_type" readonly="1"/>
-                    <field name="current_database" readonly="1" invisible="terminal_type != 'psql'"/>
+                    <field name="current_database" string="Instance Database" readonly="1" invisible="terminal_type != 'psql'"/>
                 </group>
                 <field name="command" invisible="1"/>
                 <field name="exit_code" invisible="1"/>
+                <field name="shell_mode" invisible="1"/>
                 <field name="output" widget="saas_container_terminal" nolabel="1"/>
                 <footer>
                     <button string="Close" special="cancel" class="oe_highlight"/>

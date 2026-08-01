@@ -21,11 +21,11 @@ export class SaasContainerTerminal extends Component {
         this.state = useState({
             output: recordData[this.props.name] || (
                 isPostgres
-                    ? `Connected to PostgreSQL database: ${database}\nEnter SQL or psql commands and press Enter.`
+                    ? `Connected to the PostgreSQL Docker container.\nTo open the instance database, run:\npsql -U odoo -d ${database}`
                     : "Connected to the Odoo Docker container.\nEnter a shell command and press Enter."
             ),
             command: "",
-            prompt: isPostgres ? `${database}=>` : "$",
+            prompt: isPostgres ? "pg$" : "$",
             running: false,
             lastExitCode: 0,
         });

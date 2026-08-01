@@ -73,7 +73,9 @@ class InstanceTerminalWizard(models.TransientModel):
         [('odoo', 'Odoo Docker Terminal'), ('psql', 'PostgreSQL Terminal')],
         string='Terminal', required=True, readonly=True, default='odoo'
     )
-    command = fields.Text(string='Command / SQL')
+    # A whitespace default keeps databases upgraded from the earlier required
+    # field definition compatible; the interactive widget supplies real input.
+    command = fields.Text(string='Command / SQL', default=' ')
     output = fields.Text(string='Terminal Output', readonly=True)
     exit_code = fields.Integer(string='Exit Code', readonly=True)
     current_database = fields.Char(string='Current Database', readonly=True)

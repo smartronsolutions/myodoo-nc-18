@@ -457,6 +457,9 @@ class OdooInstance(models.Model):
             'instance_id': self.id,
             'terminal_type': terminal_type,
             'current_database': self.db_name or 'postgres',
+            # Compatibility with databases where the previous wizard version
+            # still has a NOT NULL command column until the module upgrade runs.
+            'command': ' ',
         })
         action['res_id'] = wizard.id
         action['context'] = dict(self.env.context)

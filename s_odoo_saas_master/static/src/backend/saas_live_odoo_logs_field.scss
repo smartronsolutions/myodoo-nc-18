@@ -1,5 +1,8 @@
 .o_saas_live_logs_output {
-    height: min(65vh, 650px);
+    // Keep units in separate declarations. Odoo's Sass compiler evaluates
+    // min() at build time and cannot compare viewport units with pixels.
+    height: 65vh;
+    max-height: 650px;
     min-height: 360px;
     margin: 0;
     padding: 1rem;

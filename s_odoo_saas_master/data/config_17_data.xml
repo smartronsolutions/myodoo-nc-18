@@ -137,8 +137,8 @@
 			<field name="odoo_version_id" ref="saas_odoo_version_17"/>
 		</record>
 		
-		<record id="saas_odoo170_config_longpolling_port" model="saas.odoo.version.config">
-			<field name="name">longpolling_port</field>
+		<record id="saas_odoo170_config_gevent_port" model="saas.odoo.version.config">
+			<field name="name">gevent_port</field>
 			<field name="value">8072</field>
 			<field name="section_id" ref="saas_odoo_version_config_section_options"/>
 			<field name="odoo_version_id" ref="saas_odoo_version_17"/>

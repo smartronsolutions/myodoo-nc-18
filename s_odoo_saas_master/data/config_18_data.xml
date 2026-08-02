@@ -90,14 +90,14 @@
 		
 		<record id="saas_odoo180_config_limit_time_cpu" model="saas.odoo.version.config">
 			<field name="name">limit_time_cpu</field>
-			<field name="value">60</field>
+			<field name="value">1800</field>
 			<field name="section_id" ref="saas_odoo_version_config_section_options"/>
 			<field name="odoo_version_id" ref="saas_odoo_version_18"/>
 		</record>
 		
 		<record id="saas_odoo180_config_limit_time_real" model="saas.odoo.version.config">
 			<field name="name">limit_time_real</field>
-			<field name="value">120</field>
+			<field name="value">1800</field>
 			<field name="section_id" ref="saas_odoo_version_config_section_options"/>
 			<field name="odoo_version_id" ref="saas_odoo_version_18"/>
 		</record>
@@ -216,7 +216,7 @@
 		
 		<record id="saas_odoo180_config_workers" model="saas.odoo.version.config">
 			<field name="name">workers</field>
-			<field name="value">0</field>
+			<field name="value">2</field>
 			<field name="section_id" ref="saas_odoo_version_config_section_options"/>
 			<field name="odoo_version_id" ref="saas_odoo_version_18"/>
 		</record>

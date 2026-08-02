@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo noupdate="1">
 
-	<record id="saas_psql_version_12" model="saas.psql.version">
-		<field name="name">12</field>
-		<field name="docker_image_tag">12</field>
+	<record id="saas_psql_version_16" model="saas.psql.version">
+		<field name="name">16</field>
+		<field name="docker_image_tag">16</field>
 	</record>
 	
 	<record id="saas_psql_version_13" model="saas.psql.version">

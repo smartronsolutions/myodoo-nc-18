@@ -14,7 +14,7 @@
     'data': [
         'data/saas_odoo_version_data.xml',
         'data/saas_odoo_version_config_section_data.xml',
-        'data/config_14_data.xml',
+        'data/config_19_data.xml',
         'data/config_15_data.xml',
         'data/config_16_data.xml',
         'data/config_17_data.xml',

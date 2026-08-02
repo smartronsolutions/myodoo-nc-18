@@ -50,6 +50,26 @@ export class SaasContainerTerminal extends Component {
         }
     }
 
+    _isTailFollow(command) {
+        const parts = command.trim().split(/\s+/);
+        const executable = (parts[0] || "").split("/").pop();
+        if (executable !== "tail") {
+            return false;
+        }
+        return parts.slice(1).some((part) =>
+            part === "--follow" ||
+            part.startsWith("--follow=") ||
+            (/^-[^-]*f/.test(part))
+        );
+    }
+
+    _errorMessage(error) {
+        return error?.data?.message ||
+            error?.cause?.data?.message ||
+            error?.message ||
+            "Command execution failed.";
+    }
+
     async execute() {
         const command = this.state.command.trim();
         if (!command || this.state.running || !this.props.record.resId) {
@@ -57,6 +77,18 @@ export class SaasContainerTerminal extends Component {
         }
         if (command === "clear") {
             await this.clear();
+            return;
+        }
+
+        if (this._isTailFollow(command)) {
+            this.history.push(command);
+            this.historyIndex = this.history.length;
+            this.state.command = "";
+            this.state.lastExitCode = 2;
+            this.state.output = `${this.state.output}\n\n${this.state.prompt} ${command}\n` +
+                "tail -f runs continuously and cannot complete through a web request. " +
+                "Use the Odoo Logs button for live logs, or run: tail -n 50 FILE";
+            setTimeout(() => this._scrollAndFocus(), 0);
             return;
         }
 
@@ -78,7 +110,7 @@ export class SaasContainerTerminal extends Component {
             this.state.lastExitCode = result.exit_code;
         } catch (error) {
             this.state.lastExitCode = 1;
-            this.state.output = `${this.state.output}\n${error.message || "Command execution failed."}`;
+            this.state.output = `${previousOutput}\n\n${pendingPrompt}\n${this._errorMessage(error)}`;
         } finally {
             this.state.running = false;
             setTimeout(() => this._scrollAndFocus(), 0);

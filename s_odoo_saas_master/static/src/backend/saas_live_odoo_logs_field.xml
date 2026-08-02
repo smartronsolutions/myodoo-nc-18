@@ -5,7 +5,7 @@
             <div class="d-flex align-items-center gap-2 mb-2">
                 <span t-if="state.live" class="badge text-bg-success">LIVE</span>
                 <span t-else="" class="badge text-bg-secondary">PAUSED</span>
-                <span class="text-muted">Starts with latest 50 lines · refreshes every 2.5s</span>
+                <span class="text-muted">tail -f mode · starts with latest 50 lines · refreshes every 1.5s</span>
                 <span t-if="state.updatedAt" class="text-muted ms-auto" t-esc="state.updatedAt"/>
                 <button type="button" class="btn btn-sm btn-outline-secondary" t-on-click="onRefreshClick"
                     t-att-disabled="state.refreshing">

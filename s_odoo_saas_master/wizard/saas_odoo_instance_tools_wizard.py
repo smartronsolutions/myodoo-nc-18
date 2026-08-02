@@ -394,23 +394,46 @@ class InstanceOdooLogWizard(models.TransientModel):
     )
     log_output = fields.Text(string='Odoo Logs', readonly=True)
 
-    def get_live_logs(self):
-        """Return the latest 50 lines for the auto-refreshing backend widget."""
+    def get_live_logs(self, cursor=0):
+        """Return initial tail or bytes written after cursor for live polling."""
         self._check_access_and_instance()
         container_name = self._container_name('odoo')
         log_path = '/var/log/odoo/odoo.log'
+        try:
+            cursor = max(0, int(cursor or 0))
+        except (TypeError, ValueError):
+            cursor = 0
+        marker = '__SAAS_LOG_CURSOR__'
         container_script = (
-            'if [ -r %s ]; then tail -n 50 %s; '
+            'if [ -r %s ]; then '
+            'log_size=$(wc -c < %s); '
+            'if [ %d -gt 0 ] && [ "$log_size" -ge %d ]; then '
+            'start_byte=$((%d + 1)); tail -c +"$start_byte" %s; '
+            'else tail -n 50 %s; fi; '
+            'printf "\\n%s%%s\\n" "$log_size"; '
             'else echo "Log file is not readable: %s"; exit 1; fi'
         ) % (
-            shlex.quote(log_path), shlex.quote(log_path), log_path
+            shlex.quote(log_path), shlex.quote(log_path),
+            cursor, cursor, cursor, shlex.quote(log_path),
+            shlex.quote(log_path), marker, log_path,
         )
         remote_command = 'docker exec -i %s /bin/sh -lc %s' % (
             shlex.quote(container_name), shlex.quote(container_script)
         )
         status, output = self._run_remote_command(remote_command)
+        new_cursor = cursor
+        if marker in output:
+            visible_output, reported_cursor = output.rsplit(marker, 1)
+            try:
+                new_cursor = max(0, int(reported_cursor.splitlines()[0].strip()))
+            except (TypeError, ValueError, IndexError):
+                new_cursor = cursor
+            output = visible_output.rstrip()
+        reset = bool(cursor and new_cursor < cursor)
         return {
-            'output': output or _('The log file is currently empty.'),
+            'output': output or (_('The log file is currently empty.') if not cursor else ''),
             'exit_code': status,
             'updated_at': fields.Datetime.to_string(fields.Datetime.now()),
+            'cursor': new_cursor,
+            'reset': reset,
         }

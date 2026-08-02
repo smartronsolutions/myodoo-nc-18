@@ -14,7 +14,7 @@ export class SaasLiveOdooLogs extends Component {
         this.logElement = useRef("logOutput");
         this.pollTimer = null;
         this.destroyed = false;
-        this.lastSnapshot = null;
+        this.cursor = 0;
         this.state = useState({
             logs: "Connecting to the Odoo container...",
             refreshing: false,
@@ -44,7 +44,7 @@ export class SaasLiveOdooLogs extends Component {
     _schedulePoll() {
         this._clearPoll();
         if (this.state.live && !this.destroyed) {
-            this.pollTimer = setTimeout(() => this._poll(), 2500);
+            this.pollTimer = setTimeout(() => this._poll(), 1500);
         }
     }
 
@@ -62,31 +62,13 @@ export class SaasLiveOdooLogs extends Component {
         }
     }
 
-    _mergeSnapshot(output) {
-        const newLines = String(output || "").split("\n");
-        if (this.lastSnapshot === null) {
-            this.lastSnapshot = newLines;
-            return newLines.join("\n");
+    _appendLogs(output) {
+        if (!output) {
+            return;
         }
-
-        let overlap = Math.min(this.lastSnapshot.length, newLines.length);
-        while (overlap > 0) {
-            const oldTail = this.lastSnapshot.slice(-overlap).join("\n");
-            const newHead = newLines.slice(0, overlap).join("\n");
-            if (oldTail === newHead) {
-                break;
-            }
-            overlap -= 1;
-        }
-        this.lastSnapshot = newLines;
-        const addedLines = newLines.slice(overlap);
-        if (!addedLines.length) {
-            return this.state.logs;
-        }
-        // Keep a useful live history without allowing a long-running dialog to
-        // consume unbounded browser memory.
-        const history = `${this.state.logs}\n${addedLines.join("\n")}`.split("\n");
-        return history.slice(-5000).join("\n");
+        const separator = this.state.logs ? "\n" : "";
+        const history = `${this.state.logs}${separator}${output}`.split("\n");
+        this.state.logs = history.slice(-5000).join("\n");
     }
 
     async refresh() {
@@ -98,22 +80,28 @@ export class SaasLiveOdooLogs extends Component {
             const result = await this.orm.call(
                 this.props.record.resModel,
                 "get_live_logs",
-                [[this.props.record.resId]]
+                [[this.props.record.resId], this.cursor]
             );
             if (!this.destroyed) {
                 this.state.error = Boolean(result.exit_code);
                 if (result.exit_code) {
                     this.state.logs = result.output;
-                    this.lastSnapshot = null;
+                    this.cursor = 0;
+                } else if (!this.cursor || result.reset) {
+                    this.state.logs = result.output || "";
                 } else {
-                    this.state.logs = this._mergeSnapshot(result.output);
+                    this._appendLogs(result.output);
                 }
+                this.cursor = Number(result.cursor || 0);
                 this.state.updatedAt = result.updated_at || "";
             }
         } catch (error) {
             if (!this.destroyed) {
                 this.state.error = true;
-                this.state.logs = error.message || "Unable to load Odoo logs.";
+                this.state.logs = error?.data?.message ||
+                    error?.cause?.data?.message ||
+                    error?.message ||
+                    "Unable to load Odoo logs.";
             }
         } finally {
             if (!this.destroyed) {

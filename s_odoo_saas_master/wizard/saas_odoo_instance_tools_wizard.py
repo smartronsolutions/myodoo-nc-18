@@ -160,11 +160,44 @@ class InstanceTerminalWizard(models.TransientModel):
             index += 1
         return database, user
 
+    def _check_unsupported_interactive_command(self, command):
+        try:
+            parts = shlex.split(command)
+        except ValueError:
+            return
+        if not parts:
+            return
+        executable = parts[0].rsplit('/', 1)[-1]
+        if executable == 'tail':
+            follows = any(
+                part == '--follow'
+                or part.startswith('--follow=')
+                or (part.startswith('-') and not part.startswith('--') and 'f' in part[1:])
+                for part in parts[1:]
+            )
+            if follows:
+                raise ValidationError(_(
+                    'tail -f is a continuous streaming command. Use the Odoo Logs button '
+                    'for live logs, or run "tail -n 50 FILE" for one-time output.'
+                ))
+        if executable in {'top', 'htop', 'watch', 'nano', 'vi', 'vim', 'less', 'more'}:
+            raise ValidationError(_(
+                'The "%s" command requires an interactive TTY and cannot run in this web terminal.'
+            ) % executable)
+
     def _execute_terminal_command(self, command):
         self._check_access_and_instance()
         command = (command or '').strip()
         if not command:
             raise ValidationError(_('Enter a command to execute.'))
+        # A PostgreSQL connection command is emulated as a persistent session
+        # below; other never-ending/full-screen commands cannot use HTTP RPC.
+        if not (
+            self.terminal_type == 'psql'
+            and self.shell_mode == 'container'
+            and command.lstrip().startswith('psql')
+        ):
+            self._check_unsupported_interactive_command(command)
 
         if self.terminal_type == 'odoo':
             prompt = self._container_prompt('odoo')

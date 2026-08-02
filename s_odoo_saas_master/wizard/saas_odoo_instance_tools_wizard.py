@@ -83,6 +83,37 @@ class InstanceTerminalWizard(models.TransientModel):
         [('container', 'Container Shell'), ('psql', 'PostgreSQL Session')],
         default='container', required=True, readonly=True,
     )
+    current_working_directory = fields.Char(
+        string='Working Directory', default='/', required=True, readonly=True,
+    )
+
+    def _container_prompt(self, container_type):
+        directory = self.current_working_directory or '/'
+        prefix = 'pg' if container_type == 'psql' else 'odoo'
+        return '%s:%s$ ' % (prefix, directory)
+
+    def _run_container_shell(self, container_type, command):
+        container_name = self._container_name(container_type)
+        directory = self.current_working_directory or '/'
+        marker = '__SAAS_TERMINAL_CWD__'
+        shell_script = (
+            'cd %s 2>/dev/null || cd /; '
+            'eval %s; command_status=$?; '
+            'printf "\\n%s%%s\\n" "$PWD"; '
+            'exit $command_status'
+        ) % (shlex.quote(directory), shlex.quote(command), marker)
+        docker_options = '-e PGPASSWORD=odoo ' if container_type == 'psql' else ''
+        remote_command = 'docker exec -i %s%s /bin/sh -lc %s' % (
+            docker_options, shlex.quote(container_name), shlex.quote(shell_script)
+        )
+        status, result = self._run_remote_command(remote_command)
+        if marker in result:
+            visible_output, reported_directory = result.rsplit(marker, 1)
+            new_directory = reported_directory.splitlines()[0].strip()
+            if new_directory.startswith('/'):
+                self.current_working_directory = new_directory
+            result = visible_output.rstrip()
+        return status, result, self._container_prompt(container_type)
 
     def _run_psql_command(self, database, command, user='odoo'):
         container_name = self._container_name('psql')
@@ -136,20 +167,20 @@ class InstanceTerminalWizard(models.TransientModel):
             raise ValidationError(_('Enter a command to execute.'))
 
         if self.terminal_type == 'odoo':
-            container_name = self._container_name('odoo')
-            remote_command = 'docker exec -i %s /bin/sh -lc %s' % (
-                shlex.quote(container_name), shlex.quote(command)
+            prompt = self._container_prompt('odoo')
+            status, result, next_prompt = self._run_container_shell('odoo', command)
+            block = '%s%s\n%s' % (
+                prompt, command, result or _('Command completed without output.')
             )
-            prompt = '$ '
+            return status, next_prompt, block
         elif self.shell_mode == 'container':
-            container_name = self._container_name('psql')
+            prompt = self._container_prompt('psql')
             connection = self._parse_psql_connection(command)
             if connection:
                 database, user = connection
                 status, result = self._run_psql_command(
                     database, 'SELECT current_database();', user=user
                 )
-                prompt = 'pg$ '
                 block = '%s%s\n%s' % (
                     prompt, command,
                     result if status else _('Connected. PostgreSQL commands can now be entered directly.'),
@@ -161,16 +192,17 @@ class InstanceTerminalWizard(models.TransientModel):
                     })
                     prompt = '%s=> ' % database
                 return status, prompt, block
-            remote_command = 'docker exec -i -e PGPASSWORD=odoo %s /bin/sh -lc %s' % (
-                shlex.quote(container_name), shlex.quote(command)
+            status, result, next_prompt = self._run_container_shell('psql', command)
+            block = '%s%s\n%s' % (
+                prompt, command, result or _('Command completed without output.')
             )
-            prompt = 'pg$ '
+            return status, next_prompt, block
         else:
             database = self.current_database or self.instance_id.db_name or 'postgres'
             prompt = '%s=> ' % database
             if command in ('\\q', 'quit', 'exit'):
                 self.shell_mode = 'container'
-                return 0, 'pg$ ', '%s%s\n%s' % (
+                return 0, self._container_prompt('psql'), '%s%s\n%s' % (
                     prompt, command, _('PostgreSQL session closed. Back in the container shell.')
                 )
             if command.startswith('\\c ') or command.startswith('\\connect '):
@@ -219,7 +251,7 @@ class InstanceTerminalWizard(models.TransientModel):
         if self.terminal_type == 'psql' and self.shell_mode == 'psql':
             prompt = '%s=> ' % (self.current_database or 'postgres')
         else:
-            prompt = 'pg$ ' if self.terminal_type == 'psql' else '$ '
+            prompt = self._container_prompt(self.terminal_type)
         return {'prompt': prompt}
 
     def action_execute(self):

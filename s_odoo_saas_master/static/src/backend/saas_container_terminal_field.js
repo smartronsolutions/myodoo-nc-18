@@ -18,6 +18,7 @@ export class SaasContainerTerminal extends Component {
         const recordData = this.props.record.data;
         const isPostgres = recordData.terminal_type === "psql";
         const database = recordData.current_database || "postgres";
+        const directory = recordData.current_working_directory || "/";
         this.state = useState({
             output: recordData[this.props.name] || (
                 isPostgres
@@ -25,7 +26,7 @@ export class SaasContainerTerminal extends Component {
                     : "Connected to the Odoo Docker container.\nEnter a shell command and press Enter."
             ),
             command: "",
-            prompt: isPostgres ? "pg$" : "$",
+            prompt: isPostgres ? `pg:${directory}$` : `odoo:${directory}$`,
             running: false,
             lastExitCode: 0,
         });

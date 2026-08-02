@@ -13,6 +13,7 @@
                 <field name="command" invisible="1"/>
                 <field name="exit_code" invisible="1"/>
                 <field name="shell_mode" invisible="1"/>
+                <field name="current_working_directory" invisible="1"/>
                 <field name="output" widget="saas_container_terminal" nolabel="1" class="w-100 d-block"/>
                 <footer>
                     <button string="Close" special="cancel" class="oe_highlight"/>

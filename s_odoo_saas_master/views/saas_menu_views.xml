@@ -3,7 +3,7 @@
 
 	<menuitem
         id="saas_menu_root"
-        name="Myodoo Saas Master"
+        name="Saas Master"
         web_icon="s_odoo_saas_master,static/description/icon.png"
         groups="s_odoo_saas_master.group_odoo_saas_user"
         sequence="25"/>

@@ -458,6 +458,7 @@ class OdooInstance(models.Model):
             'terminal_type': terminal_type,
             'current_database': self.db_name or 'postgres',
             'shell_mode': 'container',
+            'current_working_directory': '/',
             # Compatibility with databases where the previous wizard version
             # still has a NOT NULL command column until the module upgrade runs.
             'command': ' ',

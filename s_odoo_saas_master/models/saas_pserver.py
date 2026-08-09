@@ -413,11 +413,12 @@ class PServer(models.Model):
         return addons
 
     def _set_addon_restriction(self, instance, enabled, allowed_names):
-        """Install/update a PostgreSQL policy without a client-side Odoo addon.
+        """Install/update a policy without a client-side Odoo addon.
 
         The materialized allow-list contains every explicitly allowed module and
-        its recursive dependencies. This lets Odoo install dependencies normally
-        while rejecting unrelated modules selected from the client's Apps menu.
+        its recursive dependencies. Unauthorized modules receive a managed Odoo
+        exclusion against the installed ``base`` module. Odoo's own install flow
+        therefore raises its normal responsive UserError dialog.
         """
         self.ensure_one()
         ssh = self._connect_or_raise()
@@ -445,6 +446,18 @@ ON CONFLICT (singleton) DO UPDATE SET enabled = EXCLUDED.enabled;
 CREATE TABLE IF NOT EXISTS saas_allowed_addon (
     name VARCHAR PRIMARY KEY
 );
+
+CREATE TABLE IF NOT EXISTS saas_managed_module_exclusion (
+    module_id INTEGER PRIMARY KEY
+);
+
+-- Temporarily disable protection while replacing the managed exclusions.
+UPDATE saas_addon_install_policy SET enabled = FALSE WHERE singleton = TRUE;
+DELETE FROM ir_module_module_exclusion exclusion
+ USING saas_managed_module_exclusion managed
+ WHERE exclusion.module_id = managed.module_id
+   AND exclusion.name = 'base';
+TRUNCATE TABLE saas_managed_module_exclusion;
 TRUNCATE TABLE saas_allowed_addon;
 WITH RECURSIVE allowed_module(name) AS (
     SELECT name FROM ir_module_module WHERE name IN ({allowed})
@@ -460,46 +473,61 @@ INSERT INTO saas_allowed_addon(name)
 SELECT name FROM allowed_module
 ON CONFLICT (name) DO NOTHING;
 
-CREATE OR REPLACE FUNCTION saas_check_addon_installation()
+WITH managed_exclusion AS (
+    INSERT INTO ir_module_module_exclusion(module_id, name)
+    SELECT module.id, 'base'
+      FROM ir_module_module module
+     WHERE {enabled}
+       AND module.state = 'uninstalled'
+       AND NOT module.auto_install
+       AND NOT EXISTS (
+           SELECT 1 FROM saas_allowed_addon allowed
+            WHERE allowed.name = module.name
+       )
+       AND NOT EXISTS (
+           SELECT 1 FROM ir_module_module_exclusion existing
+            WHERE existing.module_id = module.id
+              AND existing.name = 'base'
+       )
+    RETURNING module_id
+)
+INSERT INTO saas_managed_module_exclusion(module_id)
+SELECT module_id FROM managed_exclusion
+ON CONFLICT (module_id) DO NOTHING;
+
+UPDATE saas_addon_install_policy
+   SET enabled = {enabled}
+ WHERE singleton = TRUE;
+
+CREATE OR REPLACE FUNCTION saas_restore_managed_exclusion()
 RETURNS trigger AS $policy$
 DECLARE
     policy_enabled BOOLEAN;
-    auto_install_ready BOOLEAN;
 BEGIN
     SELECT enabled INTO policy_enabled
       FROM saas_addon_install_policy
      WHERE singleton = TRUE;
 
     IF COALESCE(policy_enabled, FALSE)
-       AND OLD.state = 'uninstalled'
-       AND NEW.state IN ('to install', 'installed')
-       AND NOT EXISTS (
-           SELECT 1 FROM saas_allowed_addon allowed WHERE allowed.name = NEW.name
+       AND OLD.name = 'base'
+       AND EXISTS (
+           SELECT 1 FROM saas_managed_module_exclusion managed
+            WHERE managed.module_id = OLD.module_id
        ) THEN
-        SELECT NEW.auto_install AND NOT EXISTS (
-            SELECT 1
-              FROM ir_module_module_dependency dependency
-              LEFT JOIN ir_module_module required_module
-                ON required_module.name = dependency.name
-             WHERE dependency.module_id = NEW.id
-               AND dependency.auto_install_required
-               AND COALESCE(required_module.state, 'unknown')
-                   NOT IN ('installed', 'to install', 'to upgrade')
-        ) INTO auto_install_ready;
-
-        IF NOT COALESCE(auto_install_ready, FALSE) THEN
-            RAISE EXCEPTION 'You do not have access to install addon %. Please contact your administrator.', NEW.name
-                USING ERRCODE = '42501';
-        END IF;
+        INSERT INTO ir_module_module_exclusion(module_id, name)
+        VALUES (OLD.module_id, 'base');
     END IF;
-    RETURN NEW;
+    RETURN OLD;
 END;
 $policy$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS saas_restrict_addon_installation ON ir_module_module;
-CREATE TRIGGER saas_restrict_addon_installation
-BEFORE UPDATE OF state ON ir_module_module
-FOR EACH ROW EXECUTE FUNCTION saas_check_addon_installation();
+DROP FUNCTION IF EXISTS saas_check_addon_installation();
+DROP TRIGGER IF EXISTS saas_keep_managed_module_exclusion
+    ON ir_module_module_exclusion;
+CREATE TRIGGER saas_keep_managed_module_exclusion
+AFTER DELETE ON ir_module_module_exclusion
+FOR EACH ROW EXECUTE FUNCTION saas_restore_managed_exclusion();
 COMMIT;
 """.format(enabled=enabled_sql, allowed=allowed_sql)
             encoded_query = base64.b64encode(query.encode('utf-8')).decode('ascii')

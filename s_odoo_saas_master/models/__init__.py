@@ -24,6 +24,7 @@ from . import saas_odoo_server_extra_addons
 from . import saas_odoo_instance_extra_addons
 from . import saas_odoo_instance_custom_addon
 from . import saas_odoo_instance_installed_app
+from . import saas_odoo_instance_allowed_addon
 from . import res_partner
 from . import product_product
 from . import product_template

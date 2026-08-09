@@ -49,6 +49,10 @@ class OdooInstance(models.Model):
     enable_autobackup = fields.Boolean(string="Enable Autobackup", default=True)
     installed_app_ids = fields.One2many('saas.odoo.instance.installed.app', 'instance_id', string='Installed Apps')
     installed_app_count = fields.Integer(string="Installed Apps Count", compute='_compute_installed_app_count')
+    allowed_addon_ids = fields.One2many(
+        'saas.odoo.instance.allowed.addon', 'instance_id', string='Allowed Addons'
+    )
+    addon_restriction_enabled = fields.Boolean(string='Restrict Addon Installation')
     backup_limit = fields.Integer(string='Backup Limit', required=True, default=_default_backup_limit)
     backup_ids = fields.One2many('saas.odoo.instance.backup', 'instance_id', string='Backups')
     container_backup_ids = fields.One2many(
@@ -678,6 +682,19 @@ class OdooInstance(models.Model):
 
     def action_install_modules(self, module):
         for r in self:
+            requested_modules = {
+                name.strip() for name in (module or '').split(',') if name.strip()
+            }
+            if r.addon_restriction_enabled:
+                allowed_modules = set(
+                    r.allowed_addon_ids.filtered('allowed').mapped('technical_name')
+                )
+                allowed_modules.add('s_saas_addon_guard')
+                denied_modules = requested_modules - allowed_modules
+                if denied_modules:
+                    raise UserError(_(
+                        "You do not have access to install these addons: %s"
+                    ) % ', '.join(sorted(denied_modules)))
             odoo_command = 'odoo -i %s -d %s' % (module, r.technical_name)
             r.pserver_id._recreate_docker_compose_file(r, odoo_command)
 
@@ -980,6 +997,83 @@ class OdooInstance(models.Model):
                     'product_id': app_product.id or False
                 }))
             r.sudo().write({'installed_app_ids': installed_app_ids})
+
+    def action_sync_available_addons(self):
+        self.ensure_one()
+        if self.state != 'deploy' or self.operation_state != 'run':
+            raise UserError(_('The Odoo instance must be deployed and running.'))
+        addons = self.pserver_id._get_available_addons(self)
+        existing = {line.technical_name: line for line in self.allowed_addon_ids}
+        seen = set()
+        for addon in addons:
+            technical_name = addon['technical_name']
+            seen.add(technical_name)
+            values = {
+                'name': addon['display_name'],
+                'application': addon['application'],
+                'module_state': addon['module_state'],
+            }
+            if technical_name in existing:
+                existing[technical_name].write(values)
+            else:
+                values.update({
+                    'instance_id': self.id,
+                    'technical_name': technical_name,
+                })
+                self.env['saas.odoo.instance.allowed.addon'].create(values)
+        stale_lines = self.allowed_addon_ids.filtered(
+            lambda line: line.technical_name not in seen
+        )
+        stale_lines.unlink()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Allowed Addons'),
+                'message': _('%s addons synchronized from the client instance.') % len(addons),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
+
+    def action_allow_all_addons(self):
+        self.ensure_one()
+        self.allowed_addon_ids.write({'allowed': True})
+
+    def action_clear_allowed_addons(self):
+        self.ensure_one()
+        self.allowed_addon_ids.write({'allowed': False})
+
+    def action_apply_addon_restrictions(self):
+        self.ensure_one()
+        if self.state != 'deploy' or self.operation_state != 'run':
+            raise UserError(_('The Odoo instance must be deployed and running.'))
+        guard = self.allowed_addon_ids.filtered(
+            lambda line: line.technical_name == 's_saas_addon_guard'
+        )
+        if self.addon_restriction_enabled and (
+            not guard or guard.module_state != 'installed'
+        ):
+            raise UserError(_(
+                "Install the 's_saas_addon_guard' addon in this client instance first, "
+                "then synchronize the addon list again."
+            ))
+        allowed_names = sorted(
+            set(self.allowed_addon_ids.filtered('allowed').mapped('technical_name'))
+        )
+        self.pserver_id._set_addon_restriction(
+            self, self.addon_restriction_enabled, allowed_names
+        )
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Allowed Addons'),
+                'message': _('Addon installation policy was applied to the client instance.'),
+                'type': 'success',
+                'sticky': False,
+            },
+        }
 
     def _notify_expiration(self):
         for r in self:

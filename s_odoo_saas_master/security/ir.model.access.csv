@@ -38,6 +38,7 @@ access_saas_odoo_instance_extra_addon_user,saas.odoo.instance.extra.addon.user,m
 access_saas_odoo_instance_custom_addon_user,saas.odoo.instance.custom.addon.user,model_saas_odoo_instance_custom_addon,group_odoo_saas_user,1,0,0,0
 access_saas_odoo_instance_custom_addon_manager,saas.odoo.instance.custom.addon.manager,model_saas_odoo_instance_custom_addon,group_odoo_saas_manager,1,1,1,1
 access_saas_odoo_instance_installed_app_user,saas.odoo.instance.installed.app.user,model_saas_odoo_instance_installed_app,group_odoo_saas_user,1,0,0,0
+access_saas_odoo_instance_allowed_addon_manager,saas.odoo.instance.allowed.addon.manager,model_saas_odoo_instance_allowed_addon,group_odoo_saas_manager,1,1,1,1
 access_saas_resource_package_user,saas.resource.package.user,model_saas_resource_package,group_odoo_saas_user,1,0,0,0
 access_saas_resource_package_manager,saas.resource.package.manager,model_saas_resource_package,group_odoo_saas_manager,1,1,1,1
 access_saas_resource_package_line_user,saas.resource.package.line.user,model_saas_resource_package_line,group_odoo_saas_user,1,0,0,0

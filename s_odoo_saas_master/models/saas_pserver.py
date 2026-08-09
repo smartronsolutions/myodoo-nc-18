@@ -360,6 +360,96 @@ class PServer(models.Model):
                 res.update({instance.id: apps})
         ssh.close()
         return res
+
+    def _get_available_addons(self, instance):
+        """Read the complete module registry from one running client database."""
+        self.ensure_one()
+        ssh = self._connect_or_raise()
+        try:
+            psql_containers = instance.docker_container_ids.filtered(
+                lambda container: container.container_type == 'psql'
+            )
+            if not psql_containers:
+                raise UserError(_('Cannot find the PostgreSQL container for this instance.'))
+            query = (
+                "select name,shortdesc,state,application "
+                "from ir_module_module order by application desc,name"
+            )
+            cmd = 'docker exec -i %s psql -At -F "|" -U odoo -W -d %s -c "%s"' % (
+                psql_containers[0].name, instance.db_name, query
+            )
+            output = self._exec_cmd(
+                cmd, ssh, arguments=['odoo'], without_return=False
+            ) or []
+        finally:
+            ssh.close()
+
+        addons = []
+        for row in output:
+            columns = row.rstrip('\n').split('|', 3)
+            if len(columns) != 4:
+                continue
+            technical_name, display_name, module_state, application = columns
+            if instance.odoo_version_id.version >= 16:
+                try:
+                    translations = json.loads(display_name)
+                    display_name = (
+                        translations.get('en_US')
+                        or next(iter(translations.values()), technical_name)
+                    )
+                except (TypeError, ValueError, AttributeError):
+                    display_name = technical_name
+            addons.append({
+                'technical_name': technical_name,
+                'display_name': display_name or technical_name,
+                'module_state': module_state,
+                'application': application == 't',
+            })
+        if not addons:
+            raise UserError(_(
+                'No addons were returned by the client database. The existing allow-list was not changed.'
+            ))
+        return addons
+
+    def _set_addon_restriction(self, instance, enabled, allowed_names):
+        """Store the policy in the client DB where the guard addon reads it."""
+        self.ensure_one()
+        ssh = self._connect_or_raise()
+        try:
+            psql_containers = instance.docker_container_ids.filtered(
+                lambda container: container.container_type == 'psql'
+            )
+            if not psql_containers:
+                raise UserError(_('Cannot find the PostgreSQL container for this instance.'))
+
+            def sql_literal(value):
+                return "'%s'" % str(value).replace("'", "''")
+
+            values = {
+                's_saas_addon_guard.enabled': 'True' if enabled else 'False',
+                's_saas_addon_guard.allowed_modules': ','.join(allowed_names),
+            }
+            statements = []
+            for key, value in values.items():
+                statements.append(
+                    "INSERT INTO ir_config_parameter (key,value,create_uid,write_uid,create_date,write_date) "
+                    "VALUES (%s,%s,1,1,NOW(),NOW()) ON CONFLICT (key) DO UPDATE "
+                    "SET value=EXCLUDED.value,write_uid=1,write_date=NOW()" % (
+                        sql_literal(key), sql_literal(value)
+                    )
+                )
+            query = ';'.join(statements)
+            cmd = 'docker exec -i %s psql -U odoo -W -d %s -c "%s"' % (
+                psql_containers[0].name, instance.db_name, query
+            )
+            self._exec_cmd(cmd, ssh, arguments=['odoo'])
+            # ir.config_parameter is cached by Odoo workers. Restarting makes
+            # the newly applied policy effective immediately and consistently.
+            self._exec_cmd(
+                'docker restart odoo_%s' % instance.technical_name, ssh
+            )
+        finally:
+            ssh.close()
     
     def _create_backup_folder(self, backup_dir):
         ssh = self._connect()

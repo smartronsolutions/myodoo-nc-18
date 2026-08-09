@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="s_odoo_saas_master.SaasAddonSearchField">
+        <div class="position-relative w-100">
+            <i class="fa fa-search position-absolute top-50 translate-middle-y text-muted ms-3"/>
+            <input type="search"
+                class="o_input ps-5"
+                t-att-placeholder="props.placeholder || 'Search addons...'"
+                t-att-value="props.record.data[props.name] || ''"
+                t-on-input="onInput"/>
+        </div>
+    </t>
+</templates>

@@ -53,6 +53,7 @@ class OdooInstance(models.Model):
         'saas.odoo.instance.allowed.addon', 'instance_id', string='Allowed Addons'
     )
     addon_restriction_enabled = fields.Boolean(string='Restrict Addon Installation')
+    allowed_addon_search = fields.Char(string='Search Addons', copy=False)
     backup_limit = fields.Integer(string='Backup Limit', required=True, default=_default_backup_limit)
     backup_ids = fields.One2many('saas.odoo.instance.backup', 'instance_id', string='Backups')
     container_backup_ids = fields.One2many(
@@ -1032,16 +1033,19 @@ class OdooInstance(models.Model):
                 'message': _('%s addons synchronized from the client instance.') % len(addons),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             },
         }
 
     def action_allow_all_addons(self):
         self.ensure_one()
         self.allowed_addon_ids.write({'allowed': True})
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_clear_allowed_addons(self):
         self.ensure_one()
         self.allowed_addon_ids.write({'allowed': False})
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_apply_addon_restrictions(self):
         self.ensure_one()
@@ -1061,6 +1065,7 @@ class OdooInstance(models.Model):
                 'message': _('Addon installation policy was applied to the client instance.'),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             },
         }
 

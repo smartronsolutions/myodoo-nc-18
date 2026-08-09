@@ -74,6 +74,8 @@
             's_odoo_saas_master/static/src/scss/checkout_form.scss',
         ],
         'web.assets_backend': [
+            's_odoo_saas_master/static/src/backend/saas_addon_search_field.js',
+            's_odoo_saas_master/static/src/backend/saas_addon_search_field.xml',
             's_odoo_saas_master/static/src/backend/saas_backup_restore_progress_field.js',
             's_odoo_saas_master/static/src/backend/saas_backup_restore_progress_field.xml',
             's_odoo_saas_master/static/src/backend/saas_live_odoo_logs_field.js',

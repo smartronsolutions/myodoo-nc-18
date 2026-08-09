@@ -52,6 +52,12 @@ class OdooInstance(models.Model):
     allowed_addon_ids = fields.One2many(
         'saas.odoo.instance.allowed.addon', 'instance_id', string='Allowed Addons'
     )
+    filtered_allowed_addon_ids = fields.One2many(
+        'saas.odoo.instance.allowed.addon',
+        compute='_compute_filtered_allowed_addon_ids',
+        string='Filtered Allowed Addons',
+        readonly=False,
+    )
     addon_restriction_enabled = fields.Boolean(string='Restrict Addon Installation')
     allowed_addon_search = fields.Char(string='Search Addons', copy=False)
     backup_limit = fields.Integer(string='Backup Limit', required=True, default=_default_backup_limit)
@@ -129,6 +135,22 @@ class OdooInstance(models.Model):
     _sql_constraints = [
         ('name_uniq', 'unique(name,based_domain_id)', 'Subdomain must be unique per based domain!')
     ]
+
+    @api.depends(
+        'allowed_addon_search',
+        'allowed_addon_ids.name',
+        'allowed_addon_ids.technical_name',
+    )
+    def _compute_filtered_allowed_addon_ids(self):
+        for instance in self:
+            search_term = (instance.allowed_addon_search or '').strip().casefold()
+            if not search_term:
+                instance.filtered_allowed_addon_ids = instance.allowed_addon_ids
+                continue
+            instance.filtered_allowed_addon_ids = instance.allowed_addon_ids.filtered(
+                lambda addon: search_term in (addon.name or '').casefold()
+                or search_term in (addon.technical_name or '').casefold()
+            )
 
     @api.constrains('trial', 'partner_id', 'company_id')
     def _check_trial_instance(self):
@@ -1051,6 +1073,7 @@ class OdooInstance(models.Model):
         self.ensure_one()
         if self.state != 'deploy' or self.operation_state != 'run':
             raise UserError(_('The Odoo instance must be deployed and running.'))
+        self.addon_restriction_enabled = True
         allowed_names = sorted(
             set(self.allowed_addon_ids.filtered('allowed').mapped('technical_name'))
         )
@@ -1064,6 +1087,24 @@ class OdooInstance(models.Model):
                 'title': _('Allowed Addons'),
                 'message': _('Addon installation policy was applied to the client instance.'),
                 'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            },
+        }
+
+    def action_disable_addon_restrictions(self):
+        self.ensure_one()
+        if self.state != 'deploy' or self.operation_state != 'run':
+            raise UserError(_('The Odoo instance must be deployed and running.'))
+        self.addon_restriction_enabled = False
+        self.pserver_id._set_addon_restriction(self, False, [])
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Allowed Addons'),
+                'message': _('Addon installation restrictions were disabled.'),
+                'type': 'warning',
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             },

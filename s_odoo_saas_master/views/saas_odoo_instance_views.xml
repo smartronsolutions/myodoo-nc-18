@@ -273,7 +273,7 @@
                             groups="s_odoo_saas_master.group_odoo_saas_manager">
                             <group>
                                 <group>
-                                    <field name="addon_restriction_enabled"/>
+                                    <field name="addon_restriction_enabled" readonly="1"/>
                                 </group>
                                 <group>
                                     <button name="action_sync_available_addons" string="Sync Addons"
@@ -284,6 +284,10 @@
                                         type="object" icon="fa-shield"
                                         class="btn-primary"
                                         invisible="state != 'deploy' or operation_state != 'run'"/>
+                                    <button name="action_disable_addon_restrictions" string="Disable Restrictions"
+                                        type="object" icon="fa-unlock"
+                                        class="btn-secondary"
+                                        invisible="state != 'deploy' or operation_state != 'run' or not addon_restriction_enabled"/>
                                     <button name="action_allow_all_addons" string="Allow All"
                                         type="object" class="btn-secondary"/>
                                     <button name="action_clear_allowed_addons" string="Clear All"
@@ -301,8 +305,7 @@
                                     widget="saas_addon_search"
                                     placeholder="Search by addon name or technical name..."/>
                             </group>
-                            <field name="allowed_addon_ids" nolabel="1"
-                                domain="['|', ('name', 'ilike', allowed_addon_search), ('technical_name', 'ilike', allowed_addon_search)]">
+                            <field name="filtered_allowed_addon_ids" nolabel="1">
                                 <list editable="bottom" create="0" delete="0" default_order="application desc, name">
                                     <field name="allowed"/>
                                     <field name="name" readonly="1"/>

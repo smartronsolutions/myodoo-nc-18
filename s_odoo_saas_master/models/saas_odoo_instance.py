@@ -689,7 +689,6 @@ class OdooInstance(models.Model):
                 allowed_modules = set(
                     r.allowed_addon_ids.filtered('allowed').mapped('technical_name')
                 )
-                allowed_modules.add('s_saas_addon_guard')
                 denied_modules = requested_modules - allowed_modules
                 if denied_modules:
                     raise UserError(_(
@@ -1048,16 +1047,6 @@ class OdooInstance(models.Model):
         self.ensure_one()
         if self.state != 'deploy' or self.operation_state != 'run':
             raise UserError(_('The Odoo instance must be deployed and running.'))
-        guard = self.allowed_addon_ids.filtered(
-            lambda line: line.technical_name == 's_saas_addon_guard'
-        )
-        if self.addon_restriction_enabled and (
-            not guard or guard.module_state != 'installed'
-        ):
-            raise UserError(_(
-                "Install the 's_saas_addon_guard' addon in this client instance first, "
-                "then synchronize the addon list again."
-            ))
         allowed_names = sorted(
             set(self.allowed_addon_ids.filtered('allowed').mapped('technical_name'))
         )

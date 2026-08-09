@@ -1,5 +1,6 @@
 import paramiko
 import json
+import base64
 import logging
 import os
 import shlex
@@ -412,7 +413,12 @@ class PServer(models.Model):
         return addons
 
     def _set_addon_restriction(self, instance, enabled, allowed_names):
-        """Store the policy in the client DB where the guard addon reads it."""
+        """Install/update a PostgreSQL policy without a client-side Odoo addon.
+
+        The materialized allow-list contains every explicitly allowed module and
+        its recursive dependencies. This lets Odoo install dependencies normally
+        while rejecting unrelated modules selected from the client's Apps menu.
+        """
         self.ensure_one()
         ssh = self._connect_or_raise()
         try:
@@ -422,32 +428,96 @@ class PServer(models.Model):
             if not psql_containers:
                 raise UserError(_('Cannot find the PostgreSQL container for this instance.'))
 
-            def sql_literal(value):
-                return "'%s'" % str(value).replace("'", "''")
+            allowed_sql = ','.join(
+                "'%s'" % name.replace("'", "''") for name in allowed_names
+            ) or "''"
+            enabled_sql = 'TRUE' if enabled else 'FALSE'
+            query = """
+BEGIN;
+CREATE TABLE IF NOT EXISTS saas_addon_install_policy (
+    singleton BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK (singleton),
+    enabled BOOLEAN NOT NULL DEFAULT FALSE
+);
+INSERT INTO saas_addon_install_policy (singleton, enabled)
+VALUES (TRUE, {enabled})
+ON CONFLICT (singleton) DO UPDATE SET enabled = EXCLUDED.enabled;
 
-            values = {
-                's_saas_addon_guard.enabled': 'True' if enabled else 'False',
-                's_saas_addon_guard.allowed_modules': ','.join(allowed_names),
-            }
-            statements = []
-            for key, value in values.items():
-                statements.append(
-                    "INSERT INTO ir_config_parameter (key,value,create_uid,write_uid,create_date,write_date) "
-                    "VALUES (%s,%s,1,1,NOW(),NOW()) ON CONFLICT (key) DO UPDATE "
-                    "SET value=EXCLUDED.value,write_uid=1,write_date=NOW()" % (
-                        sql_literal(key), sql_literal(value)
-                    )
-                )
-            query = ';'.join(statements)
-            cmd = 'docker exec -i %s psql -U odoo -W -d %s -c "%s"' % (
-                psql_containers[0].name, instance.db_name, query
-            )
-            self._exec_cmd(cmd, ssh, arguments=['odoo'])
-            # ir.config_parameter is cached by Odoo workers. Restarting makes
-            # the newly applied policy effective immediately and consistently.
-            self._exec_cmd(
-                'docker restart odoo_%s' % instance.technical_name, ssh
-            )
+CREATE TABLE IF NOT EXISTS saas_allowed_addon (
+    name VARCHAR PRIMARY KEY
+);
+TRUNCATE TABLE saas_allowed_addon;
+WITH RECURSIVE allowed_module(name) AS (
+    SELECT name FROM ir_module_module WHERE name IN ({allowed})
+    UNION
+    SELECT dependency.name
+      FROM allowed_module current_module
+      JOIN ir_module_module module
+        ON module.name = current_module.name
+      JOIN ir_module_module_dependency dependency
+        ON dependency.module_id = module.id
+)
+INSERT INTO saas_allowed_addon(name)
+SELECT name FROM allowed_module
+ON CONFLICT (name) DO NOTHING;
+
+CREATE OR REPLACE FUNCTION saas_check_addon_installation()
+RETURNS trigger AS $policy$
+DECLARE
+    policy_enabled BOOLEAN;
+    auto_install_ready BOOLEAN;
+BEGIN
+    SELECT enabled INTO policy_enabled
+      FROM saas_addon_install_policy
+     WHERE singleton = TRUE;
+
+    IF COALESCE(policy_enabled, FALSE)
+       AND OLD.state = 'uninstalled'
+       AND NEW.state IN ('to install', 'installed')
+       AND NOT EXISTS (
+           SELECT 1 FROM saas_allowed_addon allowed WHERE allowed.name = NEW.name
+       ) THEN
+        SELECT NEW.auto_install AND NOT EXISTS (
+            SELECT 1
+              FROM ir_module_module_dependency dependency
+              LEFT JOIN ir_module_module required_module
+                ON required_module.name = dependency.name
+             WHERE dependency.module_id = NEW.id
+               AND dependency.auto_install_required
+               AND COALESCE(required_module.state, 'unknown')
+                   NOT IN ('installed', 'to install', 'to upgrade')
+        ) INTO auto_install_ready;
+
+        IF NOT COALESCE(auto_install_ready, FALSE) THEN
+            RAISE EXCEPTION 'You do not have access to install addon %. Please contact your administrator.', NEW.name
+                USING ERRCODE = '42501';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$policy$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS saas_restrict_addon_installation ON ir_module_module;
+CREATE TRIGGER saas_restrict_addon_installation
+BEFORE UPDATE OF state ON ir_module_module
+FOR EACH ROW EXECUTE FUNCTION saas_check_addon_installation();
+COMMIT;
+""".format(enabled=enabled_sql, allowed=allowed_sql)
+            encoded_query = base64.b64encode(query.encode('utf-8')).decode('ascii')
+            cmd = (
+                '(echo %s | base64 -d | docker exec -i -e PGPASSWORD=odoo %s '
+                'psql -v ON_ERROR_STOP=1 -U odoo -d %s) 2>&1; '
+                'echo __SAAS_POLICY_EXIT_CODE:$?'
+            ) % (encoded_query, psql_containers[0].name, instance.db_name)
+            output = self._exec_cmd(cmd, ssh, without_return=False) or []
+            marker = '__SAAS_POLICY_EXIT_CODE:'
+            exit_lines = [line for line in output if marker in line]
+            if not exit_lines or exit_lines[-1].strip() != marker + '0':
+                details = ''.join(
+                    line for line in output if marker not in line
+                ).strip()
+                raise UserError(_(
+                    'Could not apply the addon installation policy to the client database. %s'
+                ) % details)
         finally:
             ssh.close()
     

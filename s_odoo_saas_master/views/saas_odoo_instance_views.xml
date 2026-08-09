@@ -292,7 +292,8 @@
                             </group>
                             <div class="alert alert-info" role="alert">
                                 Sync the client module list, select the addons the client may install,
-                                then apply the restriction. Dependencies of an allowed addon remain installable.
+                                then apply the restriction. The policy is managed entirely from this
+                                master instance; allowed addons and their dependencies remain installable.
                             </div>
                             <field name="allowed_addon_ids" nolabel="1">
                                 <list editable="bottom" create="0" delete="0" default_order="application desc, name">
